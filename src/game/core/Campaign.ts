@@ -162,7 +162,7 @@ export class Campaign {
   }
 
   /** Reinicia uma expedição no andar 1 sem apagar níveis, XP ou atributos permanentes. */
-  restart(): void {
+  restart(notify = true): void {
     this.floorIndex = 0;
     const restoreStarterEquipment = this.expeditionItemsLost;
 
@@ -181,7 +181,7 @@ export class Campaign {
     this.expeditionItemsLost = false;
 
     if (this.activePartyUids.length === 0) this.activePartyUids = this.partyUnits.slice(0, 3).map((hero) => hero.uid);
-    this.battle.reset();
+    this.battle.reset(notify);
   }
 
   private addStarterEquipment(): void {
