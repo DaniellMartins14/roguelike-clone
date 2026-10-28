@@ -907,3 +907,115 @@ button.unit-card:disabled:hover {
   #panel:not(:has(.preparation-screen)) > :nth-child(9) { grid-row:8; }
   #panel:not(:has(.preparation-screen)) > :nth-child(16) { grid-row:9; }
 }
+
+
+/* Correção estrutural do layout: tabuleiro grande + duas rails estáveis. */
+@media (min-width: 901px) {
+  #app:not(:has(.preparation-screen)) {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 2.2fr) minmax(240px, 0.9fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+    height: 100dvh;
+    min-height: 0;
+    padding: 10px;
+    overflow: hidden;
+  }
+  #app:not(:has(.preparation-screen)) #game-container {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+  }
+  #app:not(:has(.preparation-screen)) #panel { display: contents; }
+  #panel:not(:has(.preparation-screen)) .battle-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    padding: 4px;
+    background: #101722;
+    border: 1px solid #354052;
+  }
+  #panel:not(:has(.preparation-screen)) .battle-rail--left { grid-column: 1; grid-row: 1; }
+  #panel:not(:has(.preparation-screen)) .battle-rail--right { grid-column: 3; grid-row: 1; }
+  #panel:not(:has(.preparation-screen)) .battle-rail > * { flex: 0 0 auto; min-width: 0; margin: 0; }
+  #panel:not(:has(.preparation-screen)) .battle-rail .log-section { flex: 1 1 120px; min-height: 80px; overflow: hidden; }
+  #panel:not(:has(.preparation-screen)) .battle-rail .log { min-height: 0; overflow-y: auto; }
+}
+#panel:not(:has(.preparation-screen)) .battle-rail,
+#panel:not(:has(.preparation-screen)) .battle-rail * {
+  border-radius: 0 !important;
+}
+#panel:not(:has(.preparation-screen)) .battle-rail h2 { margin: 0 0 4px; }
+#panel:not(:has(.preparation-screen)) .battle-rail .unit-card { padding: 4px 6px; gap: 6px; }
+#panel:not(:has(.preparation-screen)) .battle-rail .badge { width: 26px; height: 26px; }
+#panel:not(:has(.preparation-screen)) .battle-rail .campaign-box,
+#panel:not(:has(.preparation-screen)) .battle-rail .ability-box { padding: 7px; }
+#panel:not(:has(.preparation-screen)) .battle-rail button { padding: 7px; }
+
+@media (max-width: 900px) {
+  #app:not(:has(.preparation-screen)) {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    padding: 0;
+  }
+  #app:not(:has(.preparation-screen)) #game-container {
+    order: 0;
+    flex: 0 0 auto;
+    width: 100%;
+    height: min(100vw, 62dvh);
+    max-height: none;
+    min-height: 280px;
+  }
+  #app:not(:has(.preparation-screen)) #panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    padding: 8px;
+    overflow: visible;
+  }
+  #panel:not(:has(.preparation-screen)) .battle-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+  }
+  #panel:not(:has(.preparation-screen)) .battle-rail--left { grid-column: 1; }
+  #panel:not(:has(.preparation-screen)) .battle-rail--right { grid-column: 2; }
+  #panel:not(:has(.preparation-screen)) .battle-rail .log-section { min-height: 100px; }
+}
+@media (max-width: 560px) {
+  #app:not(:has(.preparation-screen)) #panel { grid-template-columns: minmax(0, 1fr); }
+  #panel:not(:has(.preparation-screen)) .battle-rail--left,
+  #panel:not(:has(.preparation-screen)) .battle-rail--right { grid-column: 1; }
+}
+
+/* Preparação usa toda a largura e altura disponíveis, sem limite artificial de 1100px. */
+#app:has(.preparation-screen) {
+  width: 100%;
+  min-height: 100dvh;
+  height: auto;
+  overflow: visible;
+}
+#panel:has(.preparation-screen) {
+  width: 100%;
+  min-height: 100dvh;
+}
+.preparation-screen {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100dvh !important;
+  margin: 0 !important;
+}
