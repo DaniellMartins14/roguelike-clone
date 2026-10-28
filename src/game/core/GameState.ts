@@ -298,7 +298,8 @@ export class GameState {
       case 'exura': {
         const target = targeting.targetUid === null ? null : this.findUnit(targeting.targetUid);
         if (!target) return 'Clique em um herói ferido para curá-lo.';
-        const amount = healAmount(target, ABILITY_BALANCE.exuraHealRatio);
+        const source = this.findUnit(targeting.heroUid);
+        const amount = source ? healAmount(target, ABILITY_BALANCE.exuraHealRatio, source) : 0;
         return `${target.definition.name} recuperará ${amount} PV. Confirme a cura ou escolha outro herói.`;
       }
     }
@@ -561,7 +562,7 @@ export class GameState {
           this.rejectConfirm('Escolha um herói vivo antes de confirmar.');
           return false;
         }
-        if (healAmount(target, ABILITY_BALANCE.exuraHealRatio) === 0) {
+        if (healAmount(target, ABILITY_BALANCE.exuraHealRatio, hero) === 0) {
           this.rejectConfirm(`${target.definition.name} já está com PV máximo.`, true);
           return false;
         }
@@ -973,7 +974,7 @@ export class GameState {
 
   /** Exura: cura 50% do PV máximo (arredondado para cima), sem passar do máximo. */
   private castExura(hero: Unit, target: Unit): void {
-    const amount = healAmount(target, ABILITY_BALANCE.exuraHealRatio);
+    const amount = healAmount(target, ABILITY_BALANCE.exuraHealRatio, hero);
     target.hp += amount;
     this.effect = { id: 'exura', cells: unitCells(target) };
     this.healEvents.push({
@@ -1067,7 +1068,8 @@ export class GameState {
       this.setNotice('Escolha um herói vivo para curar (monstros e casas vazias não valem).');
       return false;
     }
-    if (healAmount(clicked, ABILITY_BALANCE.exuraHealRatio) === 0) {
+    const healer = this.findUnit(targeting.heroUid);
+    if (!healer || healAmount(clicked, ABILITY_BALANCE.exuraHealRatio, healer) === 0) {
       this.setNotice(`${clicked.definition.name} já está com PV máximo.`, true);
       return false;
     }
