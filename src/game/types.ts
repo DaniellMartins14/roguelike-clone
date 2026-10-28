@@ -115,8 +115,10 @@ export interface Unit {
   readonly uid: string;
   readonly definition: UnitDefinition;
   hp: number;
-  readonly maxHp: number;
-  readonly damage: number;
+  maxHp: number;
+  damage: number;
+  progression?: HeroProgression;
+  equipment?: Partial<Record<EquipmentSlot, string>>;
   /** Casa de referência (superior esquerda da área ocupada; a única casa se for 1×1). */
   position: Position;
   /** Direção em que a unidade está virada (vetor unitário; pode ser diagonal). */
@@ -266,3 +268,23 @@ export type GameEvent =
   | 'over'
   | 'encounter'
   | 'reset';
+
+/** Progressão permanente individual de um herói. XP só é concedido por golpe fatal. */
+export interface HeroProgression {
+  level: number;
+  xp: number;
+  unspentAttributePoints: number;
+  attributes: { strength: number; vitality: number; defense: number };
+}
+export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
+export interface ItemDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly slot: EquipmentSlot;
+  readonly minLevel?: number;
+  readonly bonuses: Partial<{ strength: number; vitality: number; defense: number }>;
+}
+export interface InventoryItem {
+  readonly instanceId: string;
+  readonly definitionId: string;
+}
