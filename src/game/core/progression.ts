@@ -16,7 +16,7 @@ export function createHeroProgression(): HeroProgression {
 }
 /** XP exigido para avançar do nível atual; cresce 5 pontos a cada nível. */
 export function xpRequiredForNextLevel(level: number): number {
-  return BASE_XP_TO_NEXT_LEVEL + Math.max(0, level - 1) * XP_INCREASE_PER_LEVEL;
+  return 2 * (BASE_XP_TO_NEXT_LEVEL + Math.max(0, level - 1) * XP_INCREASE_PER_LEVEL);
 }
 
 /** Penalidade por morte: 10% da barra do nível atual, sem nunca remover níveis. */
