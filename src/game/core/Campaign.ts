@@ -33,6 +33,9 @@ export class Campaign {
   private partyUnits: Unit[];
   private activePartyUids: string[] = [];
   private expeditionItemsLost = false;
+  private readonly rewardedMonsterUids = new Set<string>();
+  /** Ouro permanente do jogador, preservado entre incursões e derrotas. */
+  gold = 0;
   /** Inventário compartilhado do jogador; os equipamentos são referências nos heróis. */
   readonly inventory = new PlayerInventory();
 
@@ -53,6 +56,7 @@ export class Campaign {
     this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
     this.addStarterEquipment();
     this.battle = new GameState(() => this.createEncounter());
+    this.battle.subscribe(() => this.collectMonsterRewards());
   }
 
   // ---------- Consultas ----------
@@ -144,26 +148,43 @@ export class Campaign {
     if (this.status !== 'floor-cleared') return false;
 
     this.floorIndex += 1;
+    this.rewardedMonsterUids.clear();
     prepareParty(this.activeParty);
     this.battle.loadEncounter(this.createEncounter());
     return true;
   }
 
-  /** Descarta os itens da expedição quando todos os heróis caem. A progressão dos heróis permanece. */
+  /** A derrota encerra a incursão, mas os itens e o ouro já obtidos permanecem com o jogador. */
   loseExpeditionItems(): void {
-    if (this.expeditionItemsLost) return;
-    for (const hero of this.partyUnits) {
-      for (const slot of ['right-glove', 'left-glove', 'boots', 'chest', 'helmet', 'pants', 'weapon', 'off-hand'] as const) {
-        this.inventory.unequip(hero, slot);
+    // A regra de perda de saque será reavaliada quando a extração for implementada.
+    // Por enquanto, morte não apaga itens nem desequipa os heróis.
+    this.expeditionItemsLost = false;
+  }
+
+  private collectMonsterRewards(): void {
+    for (const monster of this.battle.roster) {
+      if (monster.definition.team !== 'monster' || monster.hp > 0 || this.rewardedMonsterUids.has(monster.uid)) continue;
+      this.rewardedMonsterUids.add(monster.uid);
+
+      const rank = monster.definition.rank ?? 'normal';
+      const reward = rank === 'boss' ? 100 : rank === 'mini-boss' ? 35 : 5;
+      this.gold += reward;
+
+      if (this.floorNumber === 5 && rank === 'mini-boss') {
+        const item = this.inventory.add('leather-boots');
+        this.battle.addCampaignNotice?.('');
+        void item;
+      } else if (this.floorNumber === 10 && rank === 'boss') {
+        this.inventory.add('padded-chest');
+        this.inventory.add('rusty-sword');
       }
     }
-    this.inventory.clear();
-    this.expeditionItemsLost = true;
   }
 
   /** Reinicia uma expedição no andar 1 sem apagar níveis, XP ou atributos permanentes. */
   restart(notify = true): void {
     this.floorIndex = 0;
+    this.rewardedMonsterUids.clear();
     const restoreStarterEquipment = this.expeditionItemsLost;
 
     for (const hero of this.partyUnits) {
