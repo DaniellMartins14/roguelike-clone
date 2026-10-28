@@ -156,7 +156,7 @@ export class Campaign {
 
   /** Extração manual após concluir um marco de 5 andares (ex.: andar 5). */
   get canExtract(): boolean {
-    return this.status === 'floor-cleared' && this.floorNumber % 5 === 0;
+    return (this.status === 'floor-cleared' || this.status === 'completed') && this.floorNumber % 5 === 0;
   }
 
   /** Saque e ouro ficam permanentes; a interface retorna à base e reinicia a incursão. */
