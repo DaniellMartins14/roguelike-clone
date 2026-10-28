@@ -81,7 +81,7 @@ export class SidePanel {
   private readonly logEl = el('ol', 'log');
   private readonly passButton = el('button', 'btn-pass', 'Passar a vez');
 
-  constructor(root: HTMLElement, campaign: Campaign) {
+  constructor(root: HTMLElement, campaign: Campaign, onRestart?: () => void) {
     this.campaign = campaign;
     this.state = campaign.battle;
 
@@ -108,7 +108,7 @@ export class SidePanel {
     this.passButton.addEventListener('click', () => this.state.passTurn());
 
     this.resetButton.type = 'button';
-    this.resetButton.addEventListener('click', () => this.campaign.restart());
+    this.resetButton.addEventListener('click', () => onRestart ? onRestart() : this.campaign.restart());
 
     const actions = el('div', 'actions');
     actions.append(this.passButton, this.resetButton);

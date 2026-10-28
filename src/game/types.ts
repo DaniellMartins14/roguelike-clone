@@ -276,7 +276,7 @@ export interface HeroProgression {
   unspentAttributePoints: number;
   attributes: { strength: number; vitality: number; defense: number };
 }
-export type EquipmentSlot = 'weapon' | 'armor' | 'accessory';
+export type EquipmentSlot = 'right-glove' | 'left-glove' | 'boots' | 'chest' | 'helmet' | 'pants' | 'weapon' | 'off-hand';
 export interface ItemDefinition {
   readonly id: string;
   readonly name: string;
