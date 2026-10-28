@@ -57,6 +57,7 @@ export class SidePanel {
   private readonly floorNameEl = el('div', 'floor-name');
   private readonly modeEl = el('div', 'mode');
   private readonly advanceButton = el('button', 'btn-advance');
+  private readonly extractButton = el('button', 'btn-extract', 'Extrair e voltar à base');
 
   private readonly turnEl = el('span', 'turn-value');
   private readonly phaseEl = el('div', 'phase');
@@ -100,6 +101,11 @@ export class SidePanel {
     this.advanceButton.type = 'button';
     this.advanceButton.hidden = true;
     this.advanceButton.addEventListener('click', () => this.campaign.advance());
+    this.extractButton.type = 'button';
+    this.extractButton.hidden = true;
+    this.extractButton.addEventListener('click', () => {
+      if (this.campaign.extract()) this.onRestart?.();
+    });
 
     const turnBox = el('div', 'turn-box');
     turnBox.append(el('span', 'turn-label', 'Turno'), this.turnEl);
@@ -124,6 +130,7 @@ export class SidePanel {
       this.telegraphBox,
       this.bannerEl,
       this.advanceButton,
+      this.extractButton,
       this.statusEl,
       this.characterStatsBox,
       this.abilityBox,
@@ -173,7 +180,7 @@ export class SidePanel {
     if (status === 'defeated') this.campaign.loseExpeditionItems();
 
     // Avança automaticamente após a vitória ou retorna à base ao terminar a campanha.
-    if (!this.transitionScheduled && status !== 'fighting') {
+    if (!this.transitionScheduled && status !== 'fighting' && !(status === 'floor-cleared' && this.campaign.canExtract)) {
       this.transitionScheduled = true;
       window.setTimeout(() => {
         if (status === 'floor-cleared') {
@@ -202,6 +209,8 @@ export class SidePanel {
     this.passButton.disabled = !canAct;
 
     this.renderCampaignEnd(status, floor);
+    this.extractButton.hidden = !this.campaign.canExtract;
+    this.advanceButton.hidden = status !== 'floor-cleared' || this.campaign.canExtract;
     this.renderTelegraphs();
 
     const selected = this.state.selectedUnit;
@@ -434,7 +443,8 @@ export class SidePanel {
     if (rank !== 'normal') name.append(el('span', `unit-rank unit-rank--${rank}`, RANK_LABEL[rank]));
 
     const top = el('div', 'unit-top');
-    top.append(name, el('span', 'unit-hp', `PV ${unit.hp}/${unit.maxHp}`));
+    if (isHero) top.append(name, el('span', 'unit-hp', `PV ${unit.hp}/${unit.maxHp}`));
+    else top.append(name);
 
     const fill = el('div', 'hp-fill');
     const ratio = Math.max(0, Math.min(1, unit.hp / unit.maxHp));
@@ -448,7 +458,8 @@ export class SidePanel {
     bar.append(fill);
 
     const info = el('div', 'unit-info');
-    info.append(top, bar, el('div', 'unit-stats', this.statsText(unit, alive)));
+    if (isHero) info.append(top, bar, el('div', 'unit-stats', this.statsText(unit, alive)));
+    else info.append(top, el('div', 'unit-stats', this.statsText(unit, alive)));
 
     card.append(badge, info);
     return card;
