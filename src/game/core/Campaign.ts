@@ -1,7 +1,7 @@
 import { CAMPAIGN_FLOORS, ENCOUNTER_LABELS } from '../data/encounters';
 import type { FloorConfig } from '../data/encounters';
 import type { BattleSetup } from '../data/battleSetup';
-import type { EncounterType, Unit } from '../types';
+import type { EncounterType, Position, Unit } from '../types';
 import { buildEncounter, createParty, prepareParty, validateFloor } from './encounter';
 import { GameState } from './GameState';
 import { PlayerInventory } from './progression';
@@ -31,6 +31,7 @@ export class Campaign {
   private readonly floors: readonly FloorConfig[];
   private floorIndex = 0;
   private partyUnits: Unit[];
+  private activePartyUids: string[] = [];
   /** Inventário compartilhado do jogador; os equipamentos são referências nos heróis. */
   readonly inventory = new PlayerInventory();
 
@@ -48,6 +49,7 @@ export class Campaign {
 
     this.floors = floors;
     this.partyUnits = createParty();
+    this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
     this.addStarterEquipment();
     this.battle = new GameState(() => this.createEncounter());
   }
@@ -79,9 +81,35 @@ export class Campaign {
     return this.floorIndex === this.floors.length - 1;
   }
 
-  /** Os cinco heróis do grupo (vivos e derrotados). */
+  /** Os cinco heróis disponíveis, incluindo os que não foram escolhidos para esta expedição. */
   get party(): readonly Unit[] {
     return this.partyUnits;
+  }
+
+  /** Heróis escolhidos para a expedição atual. */
+  get activeParty(): readonly Unit[] {
+    return this.partyUnits.filter((hero) => this.activePartyUids.includes(hero.uid));
+  }
+
+  /** Define de 1 a 3 heróis e suas casas iniciais antes de iniciar a expedição. */
+  configureParty(heroUids: readonly string[], positions: Readonly<Record<string, Position>>): boolean {
+    if (heroUids.length < 1 || heroUids.length > 3 || new Set(heroUids).size !== heroUids.length) return false;
+    const selected = heroUids.map((uid) => this.partyUnits.find((hero) => hero.uid === uid));
+    if (selected.some((hero) => !hero || hero.hp <= 0)) return false;
+    const occupied = new Set<string>();
+    for (const hero of selected as Unit[]) {
+      const pos = positions[hero.uid];
+      if (!pos || !Number.isInteger(pos.col) || !Number.isInteger(pos.row) || pos.col < 0 || pos.col > 5 || pos.row < 3 || pos.row > 5) return false;
+      const key = `${pos.col},${pos.row}`;
+      if (occupied.has(key)) return false;
+      occupied.add(key);
+    }
+    this.activePartyUids = [...heroUids];
+    for (const hero of selected as Unit[]) {
+      const pos = positions[hero.uid];
+      hero.position = { col: pos.col, row: pos.row };
+    }
+    return true;
   }
 
   get status(): CampaignStatus {
@@ -106,7 +134,7 @@ export class Campaign {
     if (this.status !== 'floor-cleared') return false;
 
     this.floorIndex += 1;
-    prepareParty(this.partyUnits);
+    prepareParty(this.activeParty);
     this.battle.loadEncounter(this.createEncounter());
     return true;
   }
@@ -115,6 +143,7 @@ export class Campaign {
   restart(): void {
     this.floorIndex = 0;
     this.partyUnits = createParty();
+    this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
     this.inventory.clear();
     this.addStarterEquipment();
     this.battle.reset();
@@ -131,7 +160,7 @@ export class Campaign {
   /** Encontro do andar atual, com o grupo atual. Usado pelo GameState ao iniciar e reiniciar. */
   private createEncounter(): BattleSetup {
     const config = this.floor;
-    const setup = buildEncounter(config, this.partyUnits);
+    const setup = buildEncounter(config, this.activeParty);
     return {
       ...setup,
       title: `Andar ${config.floor}/${this.floors.length} — ${ENCOUNTER_LABELS[config.type]}: ${config.name}`,
