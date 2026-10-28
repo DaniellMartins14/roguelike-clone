@@ -27,7 +27,8 @@ export class PreparationScreen {
     this.campaign = campaign;
     this.onStart = onStart;
     const available = campaign.party.filter((hero) => hero.hp > 0);
-    for (const hero of campaign.activeParty) this.selectedUids.add(hero.uid);
+    const initialParty = campaign.activeParty.filter((hero) => hero.hp > 0).slice(0, 3);
+    for (const hero of initialParty) this.selectedUids.add(hero.uid);
     if (this.selectedUids.size === 0) available.slice(0, 3).forEach((hero) => this.selectedUids.add(hero.uid));
     this.selectedHero = available.find((hero) => this.selectedUids.has(hero.uid)) ?? available[0] ?? campaign.party[0];
     available.forEach((hero, index) => this.positions.set(hero.uid, { col: index % 6, row: 5 }));
