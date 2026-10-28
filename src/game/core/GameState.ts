@@ -1,5 +1,6 @@
 import { ABILITY_BALANCE } from './abilities';
-import { awardKillXp } from './progression';
+import { allocateAttributePoint, awardKillXp } from './progression';
+import type { AttributeName } from './progression';
 import { createInitialBattle } from '../data/battleSetup';
 import type { BattleFactory, BattleSetup } from '../data/battleSetup';
 import type {
@@ -367,6 +368,27 @@ export class GameState {
     this.emit('select');
   }
 
+  /** Distribui um ponto no herói selecionado sem consumir o turno de combate. */
+  allocateSelectedAttribute(attribute: AttributeName): boolean {
+    if (this.currentPhase !== 'player' || this.targetingState) return false;
+    const hero = this.selectedUnit;
+    if (!hero || hero.definition.team !== 'hero' || !hero.progression) return false;
+    if (!allocateAttributePoint(hero, attribute, 1)) return false;
+
+    if (attribute === 'strength') {
+      hero.damage += 1;
+    } else if (attribute === 'vitality') {
+      hero.maxHp += 10;
+      hero.hp = Math.min(hero.maxHp, hero.hp + 10);
+    }
+    this.addLog(
+      `${hero.definition.name} investiu 1 ponto em ${attribute === 'strength' ? 'Força' : attribute === 'vitality' ? 'Vitalidade' : 'Defesa'}.`,
+      'hero',
+    );
+    this.emit('select');
+    return true;
+  }
+
   /** Desfaz a seleção do herói e qualquer escolha de alvo em andamento. */
   clearSelection(): void {
     if (this.selectedUnitUid === null && this.targetingState === null) return;
@@ -730,18 +752,20 @@ export class GameState {
   private dealDamage(target: Unit, amount: number, kind: LogKind, prefix: string, attacker?: Unit): void {
     if (!isAlive(target)) return;
     const cell = positionLabel(target.position);
-    target.hp = Math.max(0, target.hp - amount);
+    const defense = target.definition.team === 'hero' ? (target.progression?.attributes.defense ?? 0) : 0;
+    const effectiveAmount = target.definition.team === 'hero' ? Math.max(1, amount - defense) : amount;
+    target.hp = Math.max(0, target.hp - effectiveAmount);
     const killed = target.hp === 0;
 
     this.damageEvents.push({
       targetUid: target.uid,
-      amount,
+      amount: effectiveAmount,
       position: { col: target.position.col, row: target.position.row },
       killed,
     });
 
     this.addLog(
-      `${prefix} ${target.definition.name} (${cell}) e causou ${amount} de dano. ` +
+      `${prefix} ${target.definition.name} (${cell}) e causou ${effectiveAmount} de dano. ` +
         `PV ${target.hp}/${target.maxHp}.`,
       kind,
     );
