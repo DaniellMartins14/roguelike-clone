@@ -110,6 +110,10 @@ export class Campaign {
       const pos = positions[hero.uid];
       hero.position = { col: pos.col, row: pos.row };
     }
+
+    // O GameState é criado antes da tela pré-jogo. Recarrega o encontro agora para que
+    // unidades não selecionadas não permaneçam no tabuleiro da batalha inicial.
+    this.battle.loadEncounter(this.createEncounter());
     return true;
   }
 
