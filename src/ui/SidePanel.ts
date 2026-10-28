@@ -1,6 +1,7 @@
 import type { Campaign, CampaignStatus } from '../game/core/Campaign';
 import type { GameState } from '../game/core/GameState';
 import type { BattlePhase, EncounterType, Unit } from '../game/types';
+import { xpRequiredForNextLevel } from '../game/core/progression';
 
 const MODE_LABEL: Record<CampaignStatus, string> = {
   fighting: 'Em combate',
@@ -61,6 +62,7 @@ export class SidePanel {
   private readonly telegraphBox = el('section', 'telegraph-box');
   private readonly bannerEl = el('div', 'banner');
   private readonly statusEl = el('p', 'status');
+  private readonly characterStatsBox = el('section', 'character-stats');
 
   // Habilidade do herói selecionado
   private readonly abilityBox = el('section', 'ability-box');
@@ -119,6 +121,7 @@ export class SidePanel {
       this.bannerEl,
       this.advanceButton,
       this.statusEl,
+      this.characterStatsBox,
       this.abilityBox,
       section('Heróis', this.heroesEl),
       section('Monstros', this.monstersEl),
@@ -197,6 +200,7 @@ export class SidePanel {
       this.statusEl.textContent = 'Clique em um herói para selecioná-lo ou passe a vez.';
     }
 
+    this.renderCharacterStats(selected);
     this.renderAbility(selected, canAct);
 
     this.heroesEl.replaceChildren(...this.state.heroRoster.map((unit) => this.createUnitCard(unit)));
@@ -259,6 +263,61 @@ export class SidePanel {
         this.bannerEl.textContent = `Derrota! Todos os heróis foram derrotados. A campanha terminou no andar ${floor}.`;
         break;
     }
+  }
+
+
+  /** Painel de atributos e progresso do herói selecionado. */
+  private renderCharacterStats(selected: Unit | null): void {
+    if (!selected || selected.definition.team !== 'hero' || !selected.progression) {
+      this.characterStatsBox.hidden = true;
+      this.characterStatsBox.replaceChildren();
+      return;
+    }
+
+    const p = selected.progression;
+    const needed = xpRequiredForNextLevel(p.level);
+    const ratio = Math.max(0, Math.min(1, p.xp / needed));
+    const header = el('div', 'character-stats__header');
+    header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;';
+    header.append(
+      el('h2', undefined, selected.definition.name),
+      el('strong', undefined, `NÍVEL ${p.level}`),
+    );
+
+    const xpRow = el('div', 'character-stats__xp-row');
+    xpRow.style.cssText = 'display:flex;justify-content:space-between;gap:8px;font-size:0.85rem;margin:6px 0;';
+    xpRow.append(
+      el('span', undefined, 'Experiência'),
+      el('strong', undefined, `${p.xp} / ${needed} XP`),
+    );
+    const xpFill = el('div', 'character-stats__xp-fill');
+    xpFill.style.cssText = `height:100%;width:${ratio * 100}%;background:#a78bfa;border-radius:inherit;transition:width 160ms ease;`;
+    const xpBar = el('div', 'character-stats__xp-bar');
+    xpBar.style.cssText = 'height:9px;background:#272536;border:1px solid #4b465e;border-radius:6px;overflow:hidden;';
+    xpBar.append(xpFill);
+    const remaining = el('p', 'character-stats__remaining', `Faltam ${Math.max(0, needed - p.xp)} XP para o próximo nível`);
+    remaining.style.cssText = 'font-size:0.78rem;opacity:0.8;margin:5px 0 10px;';
+
+    const stats = el('div', 'character-stats__grid');
+    stats.style.cssText = 'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;';
+    const values: Array<[string, string]> = [
+      ['PV', `${selected.hp} / ${selected.maxHp}`],
+      ['Dano', String(selected.damage)],
+      ['Força', String(p.attributes.strength)],
+      ['Vitalidade', String(p.attributes.vitality)],
+      ['Defesa', String(p.attributes.defense)],
+      ['Pontos livres', String(p.unspentAttributePoints)],
+    ];
+    for (const [label, value] of values) {
+      const tile = el('div', 'character-stats__tile');
+      tile.style.cssText = 'background:#171923;border:1px solid #343746;padding:7px 9px;border-radius:4px;display:flex;justify-content:space-between;gap:6px;';
+      tile.append(el('span', undefined, label), el('strong', undefined, value));
+      stats.append(tile);
+    }
+
+    this.characterStatsBox.hidden = false;
+    this.characterStatsBox.style.cssText = 'padding:12px;margin:8px 0;background:#20212b;border:1px solid #4b465e;border-radius:5px;color:#f3f0ff;';
+    this.characterStatsBox.replaceChildren(header, xpRow, xpBar, remaining, stats);
   }
 
   /** Mostra nome, descrição, disponibilidade e controles da habilidade do herói selecionado. */
