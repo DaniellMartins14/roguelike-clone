@@ -178,8 +178,8 @@ export function fireballTargets(center: Position, units: readonly Unit[]): Unit[
  * Quantidade efetivamente curada: `ratio` do PV máximo arredondada para cima, limitada ao que
  * falta para o PV máximo. Retorna 0 se o alvo já está com a vida cheia.
  */
-export function healAmount(target: Unit, ratio: number): number {
-  const wanted = Math.ceil(target.maxHp * ratio);
+export function healAmount(target: Unit, ratio: number, source: Unit = target): number {
+  const wanted = Math.ceil(source.maxHp * ratio);
   return Math.max(0, Math.min(wanted, target.maxHp - target.hp));
 }
 
