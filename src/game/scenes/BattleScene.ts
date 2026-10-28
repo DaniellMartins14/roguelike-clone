@@ -139,6 +139,9 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Sincroniza a equipe selecionada antes de criar as peças e antes de assinar eventos.
+    // Assim, a cena nova já nasce com o encontro correto e a cena anterior não recebe eventos.
+    this.campaign.syncActiveEncounter();
     this.drawBoard();
     this.drawObstacles();
 
