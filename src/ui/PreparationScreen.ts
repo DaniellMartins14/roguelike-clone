@@ -1,5 +1,5 @@
 import type { Campaign } from '../game/core/Campaign';
-import type { EquipmentSlot, ItemDefinition, Unit } from '../game/types';
+import type { EquipmentSlot, Unit } from '../game/types';
 import { ITEM_DEFINITIONS } from '../game/data/items';
 
 const SLOTS: Array<{ id: EquipmentSlot; label: string }> = [
