@@ -32,6 +32,7 @@ export class Campaign {
   private floorIndex = 0;
   private partyUnits: Unit[];
   private activePartyUids: string[] = [];
+  private expeditionItemsLost = false;
   /** Inventário compartilhado do jogador; os equipamentos são referências nos heróis. */
   readonly inventory = new PlayerInventory();
 
@@ -139,13 +140,33 @@ export class Campaign {
     return true;
   }
 
-  /** Reinicia a campanha desde o andar 1, com um grupo novo (PV cheio, todos vivos). */
+  /** Descarta os itens da expedição quando todos os heróis caem. A progressão dos heróis permanece. */
+  loseExpeditionItems(): void {
+    if (this.expeditionItemsLost) return;
+    for (const hero of this.partyUnits) {
+      for (const slot of ['right-glove', 'left-glove', 'boots', 'chest', 'helmet', 'pants', 'weapon', 'off-hand'] as const) {
+        this.inventory.unequip(hero, slot);
+      }
+    }
+    this.inventory.clear();
+    this.expeditionItemsLost = true;
+  }
+
+  /** Reinicia uma expedição no andar 1 sem apagar níveis, XP ou atributos permanentes. */
   restart(): void {
     this.floorIndex = 0;
-    this.partyUnits = createParty();
-    this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
+    for (const hero of this.partyUnits) {
+      for (const slot of ['right-glove', 'left-glove', 'boots', 'chest', 'helmet', 'pants', 'weapon', 'off-hand'] as const) {
+        this.inventory.unequip(hero, slot);
+      }
+      hero.hp = hero.maxHp;
+      hero.abilityUsed = false;
+      hero.stunned = false;
+    }
     this.inventory.clear();
     this.addStarterEquipment();
+    this.expeditionItemsLost = false;
+    if (this.activePartyUids.length === 0) this.activePartyUids = this.partyUnits.slice(0, 3).map((hero) => hero.uid);
     this.battle.reset();
   }
 
