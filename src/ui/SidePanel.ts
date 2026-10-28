@@ -186,14 +186,17 @@ export class SidePanel {
     const status = this.campaign.status;
     if (status === 'defeated') this.campaign.loseExpeditionItems();
 
-    // Avança automaticamente após a vitória ou retorna à base ao terminar a campanha.
-    if (!this.transitionScheduled && status !== 'fighting' && !(status === 'floor-cleared' && this.campaign.canExtract)) {
+    // Avança automaticamente nos andares comuns; marcos divisíveis por 5 aguardam decisão de extração.
+    if (status === 'fighting') this.transitionScheduled = false;
+    if (!this.transitionScheduled && status !== 'fighting' && !(status === 'floor-cleared' && this.campaign.canExtract) && !(status === 'completed' && this.campaign.canExtract)) {
       this.transitionScheduled = true;
+      const completedFloor = this.campaign.floorNumber;
       window.setTimeout(() => {
-        if (status === 'floor-cleared') {
+        this.transitionScheduled = false;
+        const currentStatus = this.campaign.status;
+        if (currentStatus === 'floor-cleared' && !this.campaign.canExtract && this.campaign.floorNumber === completedFloor) {
           this.campaign.advance();
-          this.transitionScheduled = false;
-        } else if (status === 'defeated' || status === 'completed') {
+        } else if (currentStatus === 'defeated' || (currentStatus === 'completed' && !this.campaign.canExtract)) {
           this.onRestart?.();
         }
       }, 1200);
