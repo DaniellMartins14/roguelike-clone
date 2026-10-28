@@ -124,6 +124,38 @@ export const RLYEH_HORROR: UnitDefinition = {
   attack: { directions: 'orthogonal', range: 1 },
 };
 
+// Região 2 — Reino da Noite. Valores iniciais para teste: cerca de 2–3x a pressão
+// dos monstros comuns da primeira região, com papéis distintos em vez de só inflar PV.
+export const VAMPIRIC_THRALL: UnitDefinition = {
+  id: 'vampiric-thrall', name: 'Servo Vampírico', team: 'monster', symbol: 'V', color: 0x7f1d1d,
+  maxHp: 30, damage: 9, movement: 1,
+  attack: { directions: 'orthogonal', range: 1 },
+};
+
+export const BLOOD_BAT: UnitDefinition = {
+  id: 'blood-bat', name: 'Morcego Sanguinário', team: 'monster', symbol: 'M', color: 0xbe123c,
+  maxHp: 22, damage: 8, movement: 2,
+  attack: { directions: 'orthogonal', range: 1 },
+};
+
+export const NIGHT_HUNTER: UnitDefinition = {
+  id: 'night-hunter', name: 'Caçador Noturno', team: 'monster', symbol: 'N', color: 0x6d28d9,
+  maxHp: 28, damage: 10, movement: 2,
+  attack: { directions: 'orthogonal', range: 1 },
+};
+
+export const BLOOD_KNIGHT: UnitDefinition = {
+  id: 'blood-knight', name: 'Cavaleiro Sangrento', team: 'monster', symbol: 'K', color: 0x991b1b,
+  maxHp: 46, damage: 12, movement: 1,
+  attack: { directions: 'orthogonal', range: 1 },
+};
+
+export const WEREWOLF: UnitDefinition = {
+  id: 'werewolf', name: 'Lobisomem da Lua Rubra', team: 'monster', symbol: 'L', color: 0x713f12,
+  maxHp: 38, damage: 13, movement: 2,
+  attack: { directions: 'orthogonal', range: 1 },
+};
+
 export const MONSTER_DEFINITIONS: readonly UnitDefinition[] = [
   GOBLIN, SKELETON, SLIME,
   CULTIST, INSANE, ACOLYTE, DEFORMED_DEVOTEE,
