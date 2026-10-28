@@ -185,6 +185,11 @@ export class Campaign {
       } else if (this.floorNumber === 10 && rank === 'boss') {
         this.inventory.add('padded-chest');
         this.inventory.add('rusty-sword');
+      } else if (this.floorNumber === 15 && rank === 'mini-boss') {
+        this.inventory.add('iron-helmet');
+      } else if (this.floorNumber === 20 && rank === 'boss') {
+        this.inventory.add('wooden-buckler');
+        this.inventory.add('traveler-pants');
       }
     }
   }
