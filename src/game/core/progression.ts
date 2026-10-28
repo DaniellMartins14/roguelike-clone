@@ -1,4 +1,5 @@
 import type { EquipmentSlot, HeroProgression, InventoryItem, ItemDefinition, Unit } from '../types';
+import { ITEM_DEFINITIONS } from '../data/items';
 
 export const ATTRIBUTE_POINTS_PER_LEVEL = 3;
 export const BASE_XP_TO_NEXT_LEVEL = 100;
@@ -59,17 +60,38 @@ export class PlayerInventory {
     if (!definition || hero.progression.level < (definition.minLevel ?? 1)) return false;
     hero.equipment ??= {};
     const oldId = hero.equipment[definition.slot];
-    if (oldId) this.available.add(oldId);
+    if (oldId) {
+      const oldItem = this.itemsByInstance.get(oldId);
+      const oldDefinition = oldItem ? definitions[oldItem.definitionId] : undefined;
+      if (oldDefinition) applyEquipmentBonuses(hero, oldDefinition, -1);
+      this.available.add(oldId);
+    }
     this.available.delete(instanceId);
     hero.equipment[definition.slot] = instanceId;
+    applyEquipmentBonuses(hero, definition, 1);
     return true;
   }
-  unequip(hero: Unit, slot: EquipmentSlot): boolean {
+  unequip(hero: Unit, slot: EquipmentSlot, definitions: Readonly<Record<string, ItemDefinition>> = ITEM_DEFINITIONS): boolean {
     const id = hero.equipment?.[slot];
     if (!id || !this.itemsByInstance.has(id)) return false;
+    const item = this.itemsByInstance.get(id)!;
+    const definition = definitions[item.definitionId];
+    if (definition) applyEquipmentBonuses(hero, definition, -1);
     delete hero.equipment![slot];
     this.available.add(id);
     return true;
   }
   definitionOf(instanceId: string): string | null { return this.itemsByInstance.get(instanceId)?.definitionId ?? null; }
+}
+
+function applyEquipmentBonuses(hero: Unit, item: ItemDefinition, direction: 1 | -1): void {
+  if (item.bonuses.strength) hero.damage = Math.max(1, hero.damage + item.bonuses.strength * direction);
+  if (item.bonuses.defense && hero.progression) {
+    hero.progression.attributes.defense = Math.max(0, hero.progression.attributes.defense + item.bonuses.defense * direction);
+  }
+  if (item.bonuses.vitality) {
+    const delta = item.bonuses.vitality * direction;
+    hero.maxHp = Math.max(1, hero.maxHp + delta);
+    hero.hp = Math.min(hero.maxHp, Math.max(0, hero.hp + delta));
+  }
 }

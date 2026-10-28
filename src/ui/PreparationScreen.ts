@@ -1,5 +1,6 @@
 import type { Campaign } from '../game/core/Campaign';
-import type { EquipmentSlot, Unit } from '../game/types';
+import type { EquipmentSlot, ItemDefinition, Unit } from '../game/types';
+import { ITEM_DEFINITIONS } from '../game/data/items';
 
 const SLOTS: Array<{ id: EquipmentSlot; label: string }> = [
   { id: 'right-glove', label: 'Luva direita' },
@@ -72,9 +73,20 @@ export class PreparationScreen {
       label.style.cssText = 'font-size:.8rem;color:#aeb8c8;margin-bottom:5px;';
       const equippedId = this.selectedHero.equipment?.[slot.id];
       const value = document.createElement('strong');
-      value.textContent = equippedId ? (this.campaign.inventory.definitionOf(equippedId) ?? 'Item') : 'Vazio';
+      value.textContent = equippedId ? (ITEM_DEFINITIONS[this.campaign.inventory.definitionOf(equippedId) ?? '']?.name ?? 'Item') : 'Vazio';
       value.style.cssText = 'font-size:.9rem;';
       card.append(label, value);
+      if (equippedId) {
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'Remover';
+        remove.style.cssText = 'margin-top:7px;padding:5px 8px;border:1px solid #64748b;border-radius:5px;background:#263244;color:#e5e7eb;cursor:pointer;';
+        remove.addEventListener('click', () => {
+          this.campaign.inventory.unequip(this.selectedHero, slot.id);
+          this.render();
+        });
+        card.append(remove);
+      }
       slots.append(card);
     }
     detail.append(heroTitle, level, slots);
@@ -88,10 +100,36 @@ export class PreparationScreen {
     inventoryTitle.style.cssText = 'font-size:1.1rem;margin:0 0 6px;';
     const inventoryText = document.createElement('p');
     inventoryText.textContent = this.campaign.inventory.items.length
-      ? 'Selecione um item para equipá-lo. Os itens equipados ficam vinculados ao personagem e não podem ser duplicados.'
-      : 'O inventário está vazio. Os itens poderão ser distribuídos aqui quando o sistema de coleta for implementado.';
-    inventoryText.style.cssText = 'margin:0;color:#aeb8c8;font-size:.9rem;';
+      ? 'Escolha um item para equipá-lo no personagem selecionado. Cada item só pode ser usado por um herói de cada vez.'
+      : 'O inventário está vazio.';
+    inventoryText.style.cssText = 'margin:0 0 10px;color:#aeb8c8;font-size:.9rem;';
     inventory.append(inventoryTitle, inventoryText);
+    const itemGrid = document.createElement('div');
+    itemGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;';
+    for (const item of this.campaign.inventory.items) {
+      const definition = ITEM_DEFINITIONS[item.definitionId];
+      if (!definition) continue;
+      const itemButton = document.createElement('button');
+      itemButton.type = 'button';
+      const bonusText = Object.entries(definition.bonuses).map(([key, amount]) => `${key === 'strength' ? 'Força' : key === 'vitality' ? 'Vitalidade' : 'Defesa'} +${amount}`).join(' · ');
+      itemButton.innerHTML = '';
+      itemButton.style.cssText = 'padding:11px;text-align:left;border:1px solid #475569;border-radius:7px;background:#202633;color:#f3f4f6;cursor:pointer;';
+      const name = document.createElement('strong');
+      name.textContent = definition.name;
+      const meta = document.createElement('div');
+      meta.textContent = `${SLOTS.find((slot) => slot.id === definition.slot)?.label ?? definition.slot} · Nv. mínimo ${definition.minLevel ?? 1}`;
+      meta.style.cssText = 'margin-top:4px;color:#aeb8c8;font-size:.8rem;';
+      const bonus = document.createElement('div');
+      bonus.textContent = bonusText || 'Sem bônus';
+      bonus.style.cssText = 'margin-top:5px;color:#86efac;font-size:.85rem;';
+      itemButton.append(name, meta, bonus);
+      itemButton.addEventListener('click', () => {
+        const success = this.campaign.inventory.equip(this.selectedHero, item.instanceId, ITEM_DEFINITIONS);
+        if (success) this.render();
+      });
+      itemGrid.append(itemButton);
+    }
+    inventory.append(itemGrid);
     page.append(inventory);
 
     const start = document.createElement('button');

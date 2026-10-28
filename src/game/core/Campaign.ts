@@ -48,6 +48,7 @@ export class Campaign {
 
     this.floors = floors;
     this.partyUnits = createParty();
+    this.addStarterEquipment();
     this.battle = new GameState(() => this.createEncounter());
   }
 
@@ -115,7 +116,14 @@ export class Campaign {
     this.floorIndex = 0;
     this.partyUnits = createParty();
     this.inventory.clear();
+    this.addStarterEquipment();
     this.battle.reset();
+  }
+
+  private addStarterEquipment(): void {
+    for (const id of ['worn-right-glove', 'worn-left-glove', 'leather-boots', 'padded-chest', 'iron-helmet', 'traveler-pants', 'rusty-sword', 'wooden-buckler']) {
+      this.inventory.add(id);
+    }
   }
 
   // ---------- Internos ----------
