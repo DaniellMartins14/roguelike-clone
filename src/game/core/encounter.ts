@@ -18,20 +18,14 @@ export function createParty(): Unit[] {
 }
 
 /**
- * Prepara o grupo para um novo encontro. O que muda: heróis vivos voltam à formação inicial e
- * viradas para cima, a habilidade especial fica disponível de novo (uma vez por encontro) e
- * qualquer atordoamento some. O PV NÃO é restaurado, e heróis derrotados continuam derrotados.
+ * Prepara o grupo para um novo encontro: preserva a formação escolhida na tela pré-jogo,
+ * mantém o PV atual e os heróis derrotados, e restaura habilidade/atordoamento para o encontro.
  */
 export function prepareParty(party: readonly Unit[]): void {
   for (const hero of party) {
     hero.abilityUsed = false;
     hero.stunned = false;
     hero.facing = { col: 0, row: -1 };
-
-    const formation = HERO_FORMATION.find((entry) => entry.definition.id === hero.definition.id);
-    if (formation && hero.hp > 0) {
-      hero.position = { col: formation.position.col, row: formation.position.row };
-    }
   }
 }
 
