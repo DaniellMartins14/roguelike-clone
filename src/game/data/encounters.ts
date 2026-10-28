@@ -8,7 +8,6 @@ import {
   ABYSSAL_SCALED,
   SCALED_GUARDIAN,
   RLYEH_HORROR,
-  GOBLIN,
 } from './monsters';
 
 /**
@@ -78,7 +77,7 @@ export const CAMPAIGN_FLOORS: readonly FloorConfig[] = [
     { col: 1, row: 3 },
     { col: 4, row: 3 },
   ]),
-  floor(5, 'Covil do Capitão Goblin', [GOBLIN_CHIEF, GOBLIN, GOBLIN], [], 'mini-boss'),
+  floor(5, 'Covil da Criatura Sombria', [GOBLIN_CHIEF, insane2, devotee2], [], 'mini-boss'),
   floor(6, 'Câmara Profunda', [ABYSSAL_SCALED, SCALED_GUARDIAN, RLYEH_HORROR]),
   floor(7, 'Ponte Quebrada', [scaled4, guardian2, horror2], [
     { col: 2, row: 3 },
