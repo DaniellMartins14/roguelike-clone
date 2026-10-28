@@ -162,6 +162,7 @@ export class SidePanel {
   private render(): void {
     const phase = this.state.phase;
     const status = this.campaign.status;
+    if (status === 'defeated') this.campaign.loseExpeditionItems();
     const canAct = phase === 'player';
     const floor = this.campaign.floorNumber;
 
