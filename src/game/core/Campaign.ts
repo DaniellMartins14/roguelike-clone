@@ -48,6 +48,8 @@ export class Campaign {
 
     this.floors = floors;
     this.partyUnits = createParty();
+    // Equipamentos básicos iniciais para o jogador já poder testar a tela de preparação.
+    for (const id of ['worn-right-glove', 'worn-left-glove', 'leather-boots', 'padded-chest', 'iron-helmet', 'traveler-pants', 'rusty-sword', 'wooden-buckler']) this.inventory.add(id);
     this.battle = new GameState(() => this.createEncounter());
   }
 
