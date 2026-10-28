@@ -23,7 +23,7 @@ let game: Phaser.Game | null = null;
 function showPreparation(resetCampaign = false): void {
   game?.destroy(true);
   game = null;
-  if (resetCampaign) campaign.restart();
+  if (resetCampaign) campaign.restart(false);
   gameRoot.hidden = true;
   gameRoot.style.display = 'none';
   new PreparationScreen(panel, campaign, startExpedition);
