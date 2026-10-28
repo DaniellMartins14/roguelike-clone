@@ -56,7 +56,6 @@ export class SidePanel {
   private readonly floorNameEl = el('div', 'floor-name');
   private readonly modeEl = el('div', 'mode');
   private readonly advanceButton = el('button', 'btn-advance');
-  private readonly resetButton = el('button', 'btn-reset', 'Reiniciar campanha');
 
   private readonly turnEl = el('span', 'turn-value');
   private readonly phaseEl = el('div', 'phase');
@@ -80,6 +79,7 @@ export class SidePanel {
   private readonly monstersEl = el('div', 'unit-list');
   private readonly logEl = el('ol', 'log');
   private readonly passButton = el('button', 'btn-pass', 'Passar a vez');
+  private transitionScheduled = false;
 
   constructor(root: HTMLElement, campaign: Campaign, onRestart?: () => void) {
     this.campaign = campaign;
@@ -107,11 +107,8 @@ export class SidePanel {
     this.passButton.type = 'button';
     this.passButton.addEventListener('click', () => this.state.passTurn());
 
-    this.resetButton.type = 'button';
-    this.resetButton.addEventListener('click', () => onRestart ? onRestart() : this.campaign.restart());
-
     const actions = el('div', 'actions');
-    actions.append(this.passButton, this.resetButton);
+    actions.append(this.passButton);
 
     root.replaceChildren(
       title,
@@ -163,6 +160,19 @@ export class SidePanel {
     const phase = this.state.phase;
     const status = this.campaign.status;
     if (status === 'defeated') this.campaign.loseExpeditionItems();
+
+    // Avança automaticamente após a vitória ou retorna à base ao terminar a campanha.
+    if (!this.transitionScheduled && status !== 'fighting') {
+      this.transitionScheduled = true;
+      window.setTimeout(() => {
+        if (status === 'floor-cleared') {
+          this.campaign.advance();
+          this.transitionScheduled = false;
+        } else if (status === 'defeated' || status === 'completed') {
+          onRestart?.();
+        }
+      }, 1200);
+    }
     const canAct = phase === 'player';
     const floor = this.campaign.floorNumber;
 
@@ -185,11 +195,11 @@ export class SidePanel {
     const selected = this.state.selectedUnit;
     const targeting = this.state.targeting;
     if (status === 'floor-cleared') {
-      this.statusEl.textContent = `Andar ${floor} concluído. Avance quando quiser: o grupo mantém o PV atual.`;
+      this.statusEl.textContent = `Andar ${floor} concluído. Próximo andar em instantes…`;
     } else if (status === 'completed') {
-      this.statusEl.textContent = 'Fim da campanha de teste. Reinicie para jogar de novo.';
+      this.statusEl.textContent = 'Campanha concluída! Retornando à base de operações…';
     } else if (status === 'defeated') {
-      this.statusEl.textContent = 'Fim de jogo. Reinicie a campanha para voltar ao andar 1.';
+      this.statusEl.textContent = 'Todos os heróis caíram. Retornando à base de operações…';
     } else if (!canAct) {
       this.statusEl.textContent = 'Aguarde: o turno está sendo resolvido.';
     } else if (targeting && selected) {
@@ -244,8 +254,7 @@ export class SidePanel {
   /** Banner de fim de andar/campanha e botão "Avançar" (só visível com o andar concluído). */
   private renderCampaignEnd(status: CampaignStatus, floor: number): void {
     this.bannerEl.hidden = status === 'fighting';
-    this.advanceButton.hidden = status !== 'floor-cleared';
-    this.resetButton.classList.toggle('btn-reset--highlight', status === 'defeated' || status === 'completed');
+    this.advanceButton.hidden = true;
 
     switch (status) {
       case 'fighting':
