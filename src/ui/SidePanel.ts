@@ -51,6 +51,7 @@ export class SidePanel {
   private readonly state: GameState;
 
   // Campanha: andar atual, tipo de encontro e modo (combate / andar concluído / fim)
+  private readonly goldEl = el('div', 'gold-balance');
   private readonly floorEl = el('span', 'floor-label');
   private readonly encounterEl = el('span', 'encounter-chip');
   private readonly floorNameEl = el('div', 'floor-name');
@@ -113,8 +114,10 @@ export class SidePanel {
     const actions = el('div', 'actions');
     actions.append(this.passButton);
 
+    this.goldEl.style.cssText = 'padding:8px 10px;margin:8px 0;border:1px solid #a16207;border-radius:6px;background:#422006;color:#fde68a;font-weight:800;';
     root.replaceChildren(
       title,
+      this.goldEl,
       campaignBox,
       turnBox,
       this.phaseEl,
@@ -183,6 +186,7 @@ export class SidePanel {
     }
     const canAct = phase === 'player';
     const floor = this.campaign.floorNumber;
+    this.goldEl.textContent = `🪙 Ouro: ${this.campaign.gold}`;
 
     this.floorEl.textContent = `Andar ${floor}/${this.campaign.totalFloors}`;
     this.encounterEl.textContent = this.campaign.encounterLabel;
