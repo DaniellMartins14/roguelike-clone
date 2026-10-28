@@ -48,7 +48,10 @@ export class PreparationScreen {
     const subtitle = document.createElement('p');
     subtitle.textContent = 'Monte sua equipe, posicione os heróis e confira seus equipamentos antes de entrar na masmorra.';
     subtitle.style.cssText = 'color:#aeb8c8;line-height:1.5;margin:8px 0 24px;max-width:760px;';
-    page.append(eyebrow, heading, subtitle);
+    const goldBalance = document.createElement('div');
+    goldBalance.textContent = `🪙 Ouro disponível: ${this.campaign.gold}`;
+    goldBalance.style.cssText = 'display:inline-flex;align-items:center;padding:10px 14px;margin:0 0 22px;border:1px solid #a16207;border-radius:9px;background:#422006;color:#fde68a;font-weight:800;';
+    page.append(eyebrow, heading, subtitle, goldBalance);
 
     const columns = document.createElement('div');
     columns.style.cssText = 'display:grid;grid-template-columns:minmax(260px,.9fr) minmax(320px,1.1fr);gap:18px;align-items:start;';
