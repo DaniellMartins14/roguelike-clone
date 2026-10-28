@@ -402,7 +402,7 @@ export class BattleScene extends Phaser.Scene {
         insane: 'monster-insane',
         acolyte: 'monster-acolyte',
         'deformed-devotee': 'monster-deformed-devotee',
-        'goblin-chief': 'monster-shadow-creature',
+        'shadow-creature': 'monster-shadow-creature',
         'abyssal-scaled': 'monster-abyssal-scaled',
         'scaled-guardian': 'monster-scaled-guardian',
         'rlyeh-horror': 'monster-rlyeh-horror',
