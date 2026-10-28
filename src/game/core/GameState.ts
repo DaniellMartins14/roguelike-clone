@@ -1,5 +1,5 @@
 import { ABILITY_BALANCE } from './abilities';
-import { allocateAttributePoint, awardKillXp } from './progression';
+import { allocateAttributePoint, applyDeathXpPenalty, awardKillXp } from './progression';
 import type { AttributeName } from './progression';
 import { createInitialBattle } from '../data/battleSetup';
 import type { BattleFactory, BattleSetup } from '../data/battleSetup';
@@ -771,6 +771,10 @@ export class GameState {
     );
     if (killed) {
       this.addLog(`${target.definition.name} foi derrotado!`, 'death');
+      if (target.definition.team === 'hero') {
+        const lost = applyDeathXpPenalty(target);
+        if (lost > 0) this.addLog(`${target.definition.name} perdeu ${lost} XP pela morte (penalidade de 10% da barra do nível).`, 'death');
+      }
       if (attacker && attacker.definition.team === 'hero' && target.definition.team === 'monster') {
         const gained = awardKillXp(attacker, target);
         if (gained > 0) this.addLog(`${attacker.definition.name} recebeu ${gained} XP pelo golpe final.`, 'hero');
