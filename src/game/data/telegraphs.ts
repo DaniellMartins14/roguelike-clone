@@ -41,3 +41,20 @@ export const ABYSS_IDOL_TELEGRAPH: TelegraphConfig = {
   attacks: [ABYSS_SWEEP, ABYSS_PILLAR],
   cooldownTurns: 1,
 };
+
+
+/** Ataques do Drácula: fortes, mas evitáveis se o jogador respeitar o aviso. */
+export const DRACULA_TELEGRAPH: TelegraphConfig = {
+  attacks: [
+    { id: 'crimson-wave', name: 'Onda Carmesim', pattern: 'row', targeting: 'nearest-hero', damage: 16 },
+    { id: 'night-cross', name: 'Cruz da Noite', pattern: 'cross', targeting: 'lowest-hp-hero', damage: 19 },
+  ],
+  cooldownTurns: 1,
+};
+
+export const CRIMSON_COUNTESS_TELEGRAPH: TelegraphConfig = {
+  attacks: [
+    { id: 'blood-pulse', name: 'Pulso de Sangue', pattern: 'cross', targeting: 'nearest-hero', damage: 13 },
+  ],
+  cooldownTurns: 1,
+};
