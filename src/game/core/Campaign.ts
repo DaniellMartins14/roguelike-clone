@@ -171,9 +171,7 @@ export class Campaign {
       this.gold += reward;
 
       if (this.floorNumber === 5 && rank === 'mini-boss') {
-        const item = this.inventory.add('leather-boots');
-        this.battle.addCampaignNotice?.('');
-        void item;
+        this.inventory.add('leather-boots');
       } else if (this.floorNumber === 10 && rank === 'boss') {
         this.inventory.add('padded-chest');
         this.inventory.add('rusty-sword');
