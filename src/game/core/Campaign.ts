@@ -154,10 +154,20 @@ export class Campaign {
     return true;
   }
 
-  /** A derrota encerra a incursão, mas os itens e o ouro já obtidos permanecem com o jogador. */
+  /** Extração manual após concluir um marco de 5 andares (ex.: andar 5). */
+  get canExtract(): boolean {
+    return this.status === 'floor-cleared' && this.floorNumber % 5 === 0;
+  }
+
+  /** Saque e ouro ficam permanentes; a interface retorna à base e reinicia a incursão. */
+  extract(): boolean {
+    if (!this.canExtract) return false;
+    this.restart(false);
+    return true;
+  }
+
+  /** Derrotas não removem equipamento permanente nem o ouro acumulado. */
   loseExpeditionItems(): void {
-    // A regra de perda de saque será reavaliada quando a extração for implementada.
-    // Por enquanto, morte não apaga itens nem desequipa os heróis.
     this.expeditionItemsLost = false;
   }
 
