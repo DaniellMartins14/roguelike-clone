@@ -2,7 +2,8 @@ import type { EquipmentSlot, HeroProgression, InventoryItem, ItemDefinition, Uni
 import { ITEM_DEFINITIONS } from '../data/items';
 
 export const ATTRIBUTE_POINTS_PER_LEVEL = 3;
-export const BASE_XP_TO_NEXT_LEVEL = 100;
+export const BASE_XP_TO_NEXT_LEVEL = 50;
+export const XP_INCREASE_PER_LEVEL = 5;
 export const CLASS_MULTIPLIERS: Record<string, { damage: number; hp: number; defense: number }> = {
   warrior: { damage: 1, hp: 1.5, defense: 1.4 },
   mage: { damage: 1.35, hp: 0.75, defense: 0.65 },
@@ -13,7 +14,20 @@ export const CLASS_MULTIPLIERS: Record<string, { damage: number; hp: number; def
 export function createHeroProgression(): HeroProgression {
   return { level: 1, xp: 0, unspentAttributePoints: 0, attributes: { strength: 0, vitality: 0, defense: 0 } };
 }
-export function xpRequiredForNextLevel(level: number): number { return BASE_XP_TO_NEXT_LEVEL * Math.max(1, level); }
+/** XP exigido para avançar do nível atual; cresce 5 pontos a cada nível. */
+export function xpRequiredForNextLevel(level: number): number {
+  return BASE_XP_TO_NEXT_LEVEL + Math.max(0, level - 1) * XP_INCREASE_PER_LEVEL;
+}
+
+/** Penalidade por morte: 10% da barra do nível atual, sem nunca remover níveis. */
+export function applyDeathXpPenalty(hero: Unit): number {
+  const progression = hero.progression;
+  if (!progression) return 0;
+  const penalty = Math.ceil(xpRequiredForNextLevel(progression.level) * 0.1);
+  const lost = Math.min(progression.xp, penalty);
+  progression.xp -= lost;
+  return lost;
+}
 export function xpRewardForMonster(monster: Unit): number {
   const multiplier = monster.definition.rank === 'boss' ? 10 : monster.definition.rank === 'mini-boss' ? 4 : 1;
   return Math.max(10, Math.round((monster.definition.maxHp + monster.definition.damage * 3) * multiplier));
