@@ -15,16 +15,21 @@ if (!gameContainer || !panelRoot) {
 
 const campaign = new Campaign();
 let game: Phaser.Game | null = null;
-let sidePanel: SidePanel | null = null;
 
-gameContainer.hidden = true;
-gameContainer.style.display = 'none';
+function showPreparation(resetCampaign = false): void {
+  game?.destroy(true);
+  game = null;
+  if (resetCampaign) campaign.restart();
+  gameContainer.hidden = true;
+  gameContainer.style.display = 'none';
+  new PreparationScreen(panelRoot, campaign, startExpedition);
+}
 
 function startExpedition(): void {
   panelRoot.replaceChildren();
   gameContainer.hidden = false;
   gameContainer.style.display = '';
-  sidePanel = new SidePanel(panelRoot, campaign);
+  new SidePanel(panelRoot, campaign, () => showPreparation(true));
   game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: gameContainer,
@@ -39,12 +44,11 @@ function startExpedition(): void {
   });
 }
 
-new PreparationScreen(panelRoot, campaign, startExpedition);
+showPreparation();
 
 // Evita jogos duplicados quando o Vite recarrega o módulo (HMR).
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     game?.destroy(true);
-    sidePanel = null;
   });
 }
