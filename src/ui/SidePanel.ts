@@ -81,6 +81,7 @@ export class SidePanel {
   private readonly passButton = el('button', 'btn-pass', 'Passar a vez');
   private transitionScheduled = false;
   private readonly onRestart?: () => void;
+  private unsubscribe: (() => void) | null = null;
 
   constructor(root: HTMLElement, campaign: Campaign, onRestart?: () => void) {
     this.campaign = campaign;
@@ -129,8 +130,13 @@ export class SidePanel {
       actions,
     );
 
-    this.state.subscribe(() => this.render());
+    this.unsubscribe = this.state.subscribe(() => this.render());
     this.render();
+  }
+
+  destroy(): void {
+    this.unsubscribe?.();
+    this.unsubscribe = null;
   }
 
   private buildAbilityBox(): void {
