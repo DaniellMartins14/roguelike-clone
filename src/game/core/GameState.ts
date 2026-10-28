@@ -445,9 +445,11 @@ export class GameState {
    * As unidades recebidas são usadas como estão: para manter o grupo entre andares, a campanha
    * reaproveita os mesmos heróis (com o PV atual) no `setup.units`. O log é preservado.
    */
-  loadEncounter(battle: BattleSetup): void {
+  loadEncounter(battle: BattleSetup, notify = true): void {
     this.applyBattle(battle, false);
-    this.emit('encounter');
+    // Ao inicializar uma cena nova, o estado deve ser preparado sem notificar listeners
+    // pertencentes à cena anterior (que pode estar em processo de destruição).
+    if (notify) this.emit('encounter');
   }
 
   // ---------- Habilidades: ações do jogador ----------
