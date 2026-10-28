@@ -788,3 +788,113 @@ button.unit-card:disabled:hover {
   .preparation-screen > div { grid-template-columns:minmax(0,1fr) !important; }
   .preparation-screen section { padding:10px !important; }
 }
+
+
+/* Combate: layout tático compacto, sem aparência de dashboard. */
+@media (min-width: 901px) {
+  #app:not(:has(.preparation-screen)) {
+    display: grid;
+    grid-template-columns: minmax(190px, 0.78fr) minmax(360px, 1.5fr) minmax(220px, 0.9fr);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+    height: 100dvh;
+    overflow: hidden;
+    background: #090d14;
+  }
+  #app:not(:has(.preparation-screen)) #game-container {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 0;
+    height: 100%;
+    background: #080b11;
+    border: 1px solid #354052;
+  }
+  #app:not(:has(.preparation-screen)) #panel {
+    display: contents;
+  }
+  #panel:not(:has(.preparation-screen)) > * {
+    min-width: 0;
+    margin: 0;
+    border-radius: 0 !important;
+  }
+  #panel:not(:has(.preparation-screen)) > :nth-child(1),
+  #panel:not(:has(.preparation-screen)) > :nth-child(2),
+  #panel:not(:has(.preparation-screen)) > :nth-child(3),
+  #panel:not(:has(.preparation-screen)) > :nth-child(13) {
+    grid-column: 1;
+  }
+  #panel:not(:has(.preparation-screen)) > :nth-child(1) { grid-row: 1; align-self: end; font-size: 1.1rem; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(2) { grid-row: 2; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(3) { grid-row: 3; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(13) { grid-row: 4 / span 3; min-height: 0; overflow-y: auto; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(14),
+  #panel:not(:has(.preparation-screen)) > :nth-child(15),
+  #panel:not(:has(.preparation-screen)) > :nth-child(16) {
+    grid-column: 3;
+  }
+  #panel:not(:has(.preparation-screen)) > :nth-child(14) { grid-row: 1 / span 2; min-height: 0; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(15) { grid-row: 3 / span 2; min-height: 0; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(16) { grid-row: 5 / span 2; min-height: 0; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(4),
+  #panel:not(:has(.preparation-screen)) > :nth-child(5),
+  #panel:not(:has(.preparation-screen)) > :nth-child(6),
+  #panel:not(:has(.preparation-screen)) > :nth-child(7),
+  #panel:not(:has(.preparation-screen)) > :nth-child(8),
+  #panel:not(:has(.preparation-screen)) > :nth-child(9),
+  #panel:not(:has(.preparation-screen)) > :nth-child(10),
+  #panel:not(:has(.preparation-screen)) > :nth-child(11),
+  #panel:not(:has(.preparation-screen)) > :nth-child(12) {
+    grid-column: 3;
+  }
+  #panel:not(:has(.preparation-screen)) > :nth-child(4) { grid-row: 7; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(5) { grid-row: 8; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(6) { grid-row: 9; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(7) { grid-row: 10; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(8) { grid-row: 11; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(9) { grid-row: 12; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(10) { grid-row: 13; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(11) { grid-row: 14; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(12) { grid-row: 15; }
+  #panel:not(:has(.preparation-screen)) .log-section { max-height: 20vh; min-height: 0; }
+  #panel:not(:has(.preparation-screen)) .log { max-height: 14vh; }
+}
+#panel:not(:has(.preparation-screen)) .turn-box,
+#panel:not(:has(.preparation-screen)) .campaign-box,
+#panel:not(:has(.preparation-screen)) .ability-box,
+#panel:not(:has(.preparation-screen)) .unit-card,
+#panel:not(:has(.preparation-screen)) .phase,
+#panel:not(:has(.preparation-screen)) .banner,
+#panel:not(:has(.preparation-screen)) .mode,
+#panel:not(:has(.preparation-screen)) .log,
+#panel:not(:has(.preparation-screen)) button {
+  border-radius: 0 !important;
+}
+#panel:not(:has(.preparation-screen)) .unit-card { padding: 5px 7px; gap: 7px; }
+#panel:not(:has(.preparation-screen)) .badge { width: 28px; height: 28px; border-radius: 0; }
+#panel:not(:has(.preparation-screen)) .ability-box,
+#panel:not(:has(.preparation-screen)) .campaign-box { padding: 8px; }
+#panel:not(:has(.preparation-screen)) .actions,
+#panel:not(:has(.preparation-screen)) .ability-actions { gap: 5px; }
+#panel:not(:has(.preparation-screen)) button { padding: 8px; }
+
+@media (max-width: 900px) {
+  #app:not(:has(.preparation-screen)) { display:flex; flex-direction:column; gap:0; padding:0; }
+  #app:not(:has(.preparation-screen)) #game-container { order:0; width:100%; height:min(100vw, 52dvh); max-height:none; border:0; border-bottom:1px solid #354052; }
+  #app:not(:has(.preparation-screen)) #panel { order:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; padding:8px; border:0; overflow:visible; }
+  #panel:not(:has(.preparation-screen)) > * { min-width:0; border-radius:0 !important; margin:0; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(1),
+  #panel:not(:has(.preparation-screen)) > :nth-child(2),
+  #panel:not(:has(.preparation-screen)) > :nth-child(3),
+  #panel:not(:has(.preparation-screen)) > :nth-child(6),
+  #panel:not(:has(.preparation-screen)) > :nth-child(7),
+  #panel:not(:has(.preparation-screen)) > :nth-child(10),
+  #panel:not(:has(.preparation-screen)) > :nth-child(11),
+  #panel:not(:has(.preparation-screen)) > :nth-child(12),
+  #panel:not(:has(.preparation-screen)) > :nth-child(13),
+  #panel:not(:has(.preparation-screen)) > :nth-child(14),
+  #panel:not(:has(.preparation-screen)) > :nth-child(15),
+  #panel:not(:has(.preparation-screen)) > :nth-child(16) { grid-column:1 / -1; }
+  #panel:not(:has(.preparation-screen)) .log-section { min-height:90px; max-height:140px; }
+  #panel:not(:has(.preparation-screen)) .log { max-height:90px; }
+}
