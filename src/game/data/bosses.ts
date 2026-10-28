@@ -8,11 +8,11 @@ import { ABYSS_IDOL_TELEGRAPH } from './telegraphs';
  */
 
 export const GOBLIN_CHIEF: UnitDefinition = {
-  id: 'goblin-chief',
-  name: 'Capitão Goblin',
+  id: 'shadow-creature',
+  name: 'Criatura Sombria',
   team: 'monster',
   symbol: '♜',
-  color: 0xb45309,
+  color: 0x4b5563,
   maxHp: 48,
   damage: 6,
   movement: 2,
@@ -26,7 +26,7 @@ export const ABYSS_IDOL: UnitDefinition = {
   team: 'monster',
   symbol: '♛',
   color: 0x4c1d95,
-  maxHp: 85,
+  maxHp: 170,
   damage: 8,
   movement: 1,
   attack: { directions: 'orthogonal', range: 1 },
