@@ -1,4 +1,5 @@
 import { ABILITY_BALANCE } from './abilities';
+import { awardKillXp } from './progression';
 import { createInitialBattle } from '../data/battleSetup';
 import type { BattleFactory, BattleSetup } from '../data/battleSetup';
 import type {
@@ -718,14 +719,14 @@ export class GameState {
     const kind: LogKind = attacker.definition.team === 'hero' ? 'hero' : 'monster';
 
     for (const target of targets) {
-      this.dealDamage(target, attacker.damage, kind, `${attacker.definition.name} atacou`);
+      this.dealDamage(target, attacker.damage, kind, `${attacker.definition.name} atacou`, attacker);
     }
 
     return targets.length;
   }
 
   /** Aplica dano (HP nunca fica abaixo de zero), registra o golpe e a morte. */
-  private dealDamage(target: Unit, amount: number, kind: LogKind, prefix: string): void {
+  private dealDamage(target: Unit, amount: number, kind: LogKind, prefix: string, attacker?: Unit): void {
     if (!isAlive(target)) return;
     const cell = positionLabel(target.position);
     target.hp = Math.max(0, target.hp - amount);
@@ -745,6 +746,10 @@ export class GameState {
     );
     if (killed) {
       this.addLog(`${target.definition.name} foi derrotado!`, 'death');
+      if (attacker && attacker.definition.team === 'hero' && target.definition.team === 'monster') {
+        const gained = awardKillXp(attacker, target);
+        if (gained > 0) this.addLog(`${attacker.definition.name} recebeu ${gained} XP pelo golpe final.`, 'hero');
+      }
       // Chefe morto não executa o golpe que tinha anunciado.
       this.cancelTelegraphsOf(target, `foi derrotado antes de concluir o golpe`);
     }
@@ -848,7 +853,7 @@ export class GameState {
       this.addLog('Ninguém estava nas casas atingidas.', 'telegraph');
     }
     for (const victim of victims) {
-      this.dealDamage(victim, intent.damage, 'monster', `${intent.attackName} atingiu`);
+      this.dealDamage(victim, intent.damage, 'monster', `${intent.attackName} atingiu`, boss);
     }
 
     // Começa a pausa antes do próximo anúncio.
@@ -933,7 +938,7 @@ export class GameState {
       if (!isAlive(target)) break;
       // Cada golpe é um ataque normal: o alvo precisa estar no padrão de ataque da classe.
       if (!findAttackTargets(hero, this.combatContext()).includes(target)) break;
-      this.dealDamage(target, hero.damage, 'hero', `${hero.definition.name} atacou`);
+      this.dealDamage(target, hero.damage, 'hero', `${hero.definition.name} atacou`, hero);
     }
   }
 
@@ -947,7 +952,7 @@ export class GameState {
       return;
     }
     for (const target of targets) {
-      this.dealDamage(target, ABILITY_BALANCE.piercingShotDamage, 'hero', 'Tiro Perfurante atingiu');
+      this.dealDamage(target, ABILITY_BALANCE.piercingShotDamage, 'hero', 'Tiro Perfurante atingiu', hero);
     }
   }
 
@@ -962,7 +967,7 @@ export class GameState {
     }
     for (const target of targets) {
       const prefix = target === hero ? 'Bola de Fogo atingiu o próprio conjurador,' : 'Bola de Fogo atingiu';
-      this.dealDamage(target, ABILITY_BALANCE.fireballDamage, 'hero', prefix);
+      this.dealDamage(target, ABILITY_BALANCE.fireballDamage, 'hero', prefix, hero);
     }
   }
 
