@@ -434,9 +434,10 @@ export class GameState {
   }
 
   /** Reinicia a batalha a qualquer momento, inclusive durante a resolução. */
-  reset(): void {
+  reset(notify = true): void {
     this.setup();
-    this.emit('reset');
+    // O menu destrói a cena antes de reiniciar; não notifique listeners antigos nesse caso.
+    if (notify) this.emit('reset');
   }
 
   /**
