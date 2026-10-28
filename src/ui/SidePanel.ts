@@ -210,7 +210,7 @@ export class SidePanel {
 
     this.renderCampaignEnd(status, floor);
     this.extractButton.hidden = !this.campaign.canExtract;
-    this.advanceButton.hidden = status !== 'floor-cleared' || this.campaign.canExtract;
+    this.advanceButton.hidden = status !== 'floor-cleared';
     this.renderTelegraphs();
 
     const selected = this.state.selectedUnit;
