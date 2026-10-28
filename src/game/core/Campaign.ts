@@ -111,10 +111,14 @@ export class Campaign {
       hero.position = { col: pos.col, row: pos.row };
     }
 
-    // O GameState é criado antes da tela pré-jogo. Recarrega o encontro agora para que
-    // unidades não selecionadas não permaneçam no tabuleiro da batalha inicial.
-    this.battle.loadEncounter(this.createEncounter());
+    // A cena Phaser sincroniza o encontro ao iniciar. Não emitir evento aqui:
+    // o jogo anterior pode estar sendo destruído e ainda ter listeners temporariamente ativos.
     return true;
+  }
+
+  /** Sincroniza o estado de batalha com a equipe selecionada, antes de a cena assinar eventos. */
+  syncActiveEncounter(): void {
+    this.battle.loadEncounter(this.createEncounter());
   }
 
   get status(): CampaignStatus {
