@@ -898,3 +898,12 @@ button.unit-card:disabled:hover {
   #panel:not(:has(.preparation-screen)) .log-section { min-height:90px; max-height:140px; }
   #panel:not(:has(.preparation-screen)) .log { max-height:90px; }
 }
+
+@media (min-width: 901px) {
+  #panel:not(:has(.preparation-screen)) > :nth-child(8),
+  #panel:not(:has(.preparation-screen)) > :nth-child(9),
+  #panel:not(:has(.preparation-screen)) > :nth-child(16) { grid-column:1; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(8) { grid-row:7; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(9) { grid-row:8; }
+  #panel:not(:has(.preparation-screen)) > :nth-child(16) { grid-row:9; }
+}
