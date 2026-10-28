@@ -8,6 +8,7 @@ import {
   ABYSSAL_SCALED,
   SCALED_GUARDIAN,
   RLYEH_HORROR,
+  VAMPIRIC_THRALL, BLOOD_BAT, NIGHT_HUNTER, BLOOD_KNIGHT, WEREWOLF,
 } from './monsters';
 
 /**
@@ -89,4 +90,22 @@ export const CAMPAIGN_FLOORS: readonly FloorConfig[] = [
     { col: 5, row: 3 },
   ]),
   floor(10, 'Altar do Ídolo do Abismo', [ABYSS_IDOL, scaled2, guardian2], [], 'boss'),
+
+  // Região 2 — Reino da Noite: cerca de 2–3x a pressão dos inimigos iniciais.
+  floor(11, 'Estrada dos Morcegos', [BLOOD_BAT, BLOOD_BAT, VAMPIRIC_THRALL]),
+  floor(12, 'Aldeia Sem Pulso', [VAMPIRIC_THRALL, VAMPIRIC_THRALL, NIGHT_HUNTER]),
+  floor(13, 'Cemitério da Lua Rubra', [WEREWOLF, BLOOD_BAT, NIGHT_HUNTER], [
+    { col: 1, row: 2 }, { col: 4, row: 2 },
+  ]),
+  floor(14, 'Portões do Castelo Carmesim', [BLOOD_KNIGHT, VAMPIRIC_THRALL, NIGHT_HUNTER]),
+  floor(15, 'Salão da Condessa', [CRIMSON_COUNTESS, BLOOD_KNIGHT, BLOOD_BAT], [], 'mini-boss'),
+  floor(16, 'Galeria dos Uivos', [WEREWOLF, WEREWOLF, VAMPIRIC_THRALL, BLOOD_BAT]),
+  floor(17, 'Banquete Eterno', [BLOOD_KNIGHT, NIGHT_HUNTER, NIGHT_HUNTER], [
+    { col: 2, row: 2 }, { col: 3, row: 2 },
+  ]),
+  floor(18, 'Cripta dos Nobres', [BLOOD_KNIGHT, WEREWOLF, NIGHT_HUNTER, BLOOD_BAT]),
+  floor(19, 'Trono Vazio', [BLOOD_KNIGHT, WEREWOLF, NIGHT_HUNTER, NIGHT_HUNTER], [
+    { col: 1, row: 2 }, { col: 4, row: 2 },
+  ]),
+  floor(20, 'Trono do Senhor da Noite', [DRACULA, BLOOD_KNIGHT, BLOOD_BAT], [], 'boss'),
 ];
