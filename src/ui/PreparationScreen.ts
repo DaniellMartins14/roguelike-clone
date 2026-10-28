@@ -38,7 +38,7 @@ export class PreparationScreen {
   private render(): void {
     const page = document.createElement('main');
     page.className = 'preparation-screen';
-    page.style.cssText = 'width:min(100%,1180px);margin:auto;padding:clamp(18px,3vw,38px);color:#f3f4f6;font-family:system-ui,sans-serif;';
+    page.style.cssText = 'width:min(100%,1180px);margin:auto;padding:clamp(12px,2vw,24px);color:#f3f4f6;font-family:system-ui,sans-serif;';
     const eyebrow = document.createElement('p');
     eyebrow.textContent = 'ROGUELIKE ALFA · BASE DE OPERAÇÕES';
     eyebrow.style.cssText = 'color:#a78bfa;font-weight:800;letter-spacing:.16em;font-size:.75rem;margin:0 0 8px;';
@@ -47,14 +47,14 @@ export class PreparationScreen {
     heading.style.cssText = 'font-size:clamp(2rem,4vw,3rem);margin:0;';
     const subtitle = document.createElement('p');
     subtitle.textContent = 'Monte sua equipe, posicione os heróis e confira seus equipamentos antes de entrar na masmorra.';
-    subtitle.style.cssText = 'color:#aeb8c8;line-height:1.5;margin:8px 0 24px;max-width:760px;';
+    subtitle.style.cssText = 'color:#aeb8c8;line-height:1.4;margin:6px 0 12px;max-width:760px;';
     const goldBalance = document.createElement('div');
     goldBalance.textContent = `🪙 Ouro disponível: ${this.campaign.gold}`;
-    goldBalance.style.cssText = 'display:inline-flex;align-items:center;padding:10px 14px;margin:0 0 22px;border:1px solid #a16207;border-radius:9px;background:#422006;color:#fde68a;font-weight:800;';
+    goldBalance.style.cssText = 'display:inline-flex;align-items:center;padding:8px 12px;margin:0 0 12px;border:1px solid #a16207;border-radius:9px;background:#422006;color:#fde68a;font-weight:800;';
     page.append(eyebrow, heading, subtitle, goldBalance);
 
     const columns = document.createElement('div');
-    columns.style.cssText = 'display:grid;grid-template-columns:minmax(260px,.9fr) minmax(320px,1.1fr);gap:18px;align-items:start;';
+    columns.style.cssText = 'display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:12px;align-items:start;';
     const left = document.createElement('section');
     left.style.cssText = STYLE.card;
     const rosterTitle = document.createElement('h2');
@@ -101,7 +101,7 @@ export class PreparationScreen {
     left.append(rosterTitle, rosterHint, roster);
 
     const right = document.createElement('div');
-    right.style.cssText = 'display:grid;gap:18px;';
+    right.style.cssText = 'display:grid;gap:12px;';
     const boardCard = document.createElement('section');
     boardCard.style.cssText = STYLE.card;
     const boardTitle = document.createElement('h2');
@@ -189,7 +189,7 @@ export class PreparationScreen {
     page.append(columns);
 
     const footer = document.createElement('section');
-    footer.style.cssText = 'margin-top:18px;padding:16px;border:1px solid #394150;border-radius:10px;background:#111827;';
+    footer.style.cssText = 'margin-top:12px;padding:16px;border:1px solid #394150;border-radius:10px;background:#111827;';
     const summary = document.createElement('p');
     summary.textContent = `${this.selectedUids.size} herói(s) selecionado(s) · Andar inicial: 1 · Máximo por equipe: 3`;
     summary.style.cssText = 'margin:0 0 10px;color:#cbd5e1;';
