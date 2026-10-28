@@ -53,6 +53,64 @@ body {
   overflow-y: auto;
 }
 
+/* A tela de preparação ocupa o monitor inteiro, em vez da coluna lateral do combate. */
+#app:has(.preparation-screen) {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  height: auto;
+  overflow: auto;
+}
+
+#panel:has(.preparation-screen) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  height: auto;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+}
+
+.preparation-screen {
+  width: min(100%, 1100px);
+  max-width: 1100px !important;
+  min-height: 100vh;
+  margin: 0 auto !important;
+  padding: clamp(20px, 3vw, 40px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--bg) !important;
+}
+
+.preparation-screen > div {
+  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.8fr) !important;
+  gap: clamp(16px, 2.5vw, 28px) !important;
+}
+
+.preparation-screen button {
+  font: inherit;
+}
+
+.preparation-screen h1 {
+  font-size: clamp(1.8rem, 3vw, 2.5rem) !important;
+}
+
+.preparation-screen h2 {
+  color: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+  .preparation-screen {
+    padding: 18px !important;
+  }
+
+  .preparation-screen > div {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
 #panel h1 {
   margin: 0;
   font-size: 1.25rem;
