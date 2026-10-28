@@ -4,6 +4,7 @@ import type { BattleSetup } from '../data/battleSetup';
 import type { EncounterType, Unit } from '../types';
 import { buildEncounter, createParty, prepareParty, validateFloor } from './encounter';
 import { GameState } from './GameState';
+import { PlayerInventory } from './progression';
 
 /**
  * Situação da campanha:
@@ -30,6 +31,8 @@ export class Campaign {
   private readonly floors: readonly FloorConfig[];
   private floorIndex = 0;
   private partyUnits: Unit[];
+  /** Inventário compartilhado do jogador; os equipamentos são referências nos heróis. */
+  readonly inventory = new PlayerInventory();
 
   constructor(floors: readonly FloorConfig[] = CAMPAIGN_FLOORS) {
     const problems = floors.flatMap((config) => validateFloor(config));
@@ -111,6 +114,7 @@ export class Campaign {
   restart(): void {
     this.floorIndex = 0;
     this.partyUnits = createParty();
+    this.inventory.clear();
     this.battle.reset();
   }
 
