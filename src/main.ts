@@ -19,8 +19,11 @@ const panel: HTMLElement = panelRoot;
 
 const campaign = new Campaign();
 let game: Phaser.Game | null = null;
+let sidePanel: SidePanel | null = null;
 
 function showPreparation(resetCampaign = false): void {
+  sidePanel?.destroy();
+  sidePanel = null;
   game?.destroy(true);
   game = null;
   if (resetCampaign) campaign.restart(false);
@@ -33,7 +36,7 @@ function startExpedition(): void {
   panel.replaceChildren();
   gameRoot.hidden = false;
   gameRoot.style.display = '';
-  new SidePanel(panel, campaign, () => showPreparation(true));
+  sidePanel = new SidePanel(panel, campaign, () => showPreparation(true));
   game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: gameRoot,
@@ -53,6 +56,8 @@ showPreparation();
 // Evita jogos duplicados quando o Vite recarrega o módulo (HMR).
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
+    sidePanel?.destroy();
+    sidePanel = null;
     game?.destroy(true);
   });
 }
