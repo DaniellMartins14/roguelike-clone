@@ -121,24 +121,31 @@ export class SidePanel {
     actions.append(this.passButton);
 
     this.goldEl.style.cssText = 'padding:8px 10px;margin:8px 0;border:1px solid #a16207;border-radius:6px;background:#422006;color:#fde68a;font-weight:800;';
-    root.replaceChildren(
+    const leftRail = el('div', 'battle-rail battle-rail--left');
+    leftRail.append(
       title,
       this.goldEl,
       campaignBox,
       turnBox,
+      section('Heróis', this.heroesEl),
+      actions,
+      this.advanceButton,
+      this.extractButton,
+    );
+
+    const rightRail = el('div', 'battle-rail battle-rail--right');
+    rightRail.append(
       this.phaseEl,
       this.telegraphBox,
       this.bannerEl,
-      this.advanceButton,
-      this.extractButton,
       this.statusEl,
       this.characterStatsBox,
       this.abilityBox,
-      section('Heróis', this.heroesEl),
       section('Monstros', this.monstersEl),
       section('Registro de combate', this.logEl, 'log-section'),
-      actions,
     );
+
+    root.replaceChildren(leftRail, rightRail);
 
     this.unsubscribe = this.state.subscribe(() => this.render());
     this.render();
