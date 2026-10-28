@@ -2,6 +2,7 @@ import type { Campaign, CampaignStatus } from '../game/core/Campaign';
 import type { GameState } from '../game/core/GameState';
 import type { BattlePhase, EncounterType, Unit } from '../game/types';
 import { xpRequiredForNextLevel } from '../game/core/progression';
+import type { AttributeName } from '../game/core/progression';
 
 const MODE_LABEL: Record<CampaignStatus, string> = {
   fighting: 'Em combate',
@@ -303,10 +304,6 @@ export class SidePanel {
     const values: Array<[string, string]> = [
       ['PV', `${selected.hp} / ${selected.maxHp}`],
       ['Dano', String(selected.damage)],
-      ['Força', String(p.attributes.strength)],
-      ['Vitalidade', String(p.attributes.vitality)],
-      ['Defesa', String(p.attributes.defense)],
-      ['Pontos livres', String(p.unspentAttributePoints)],
     ];
     for (const [label, value] of values) {
       const tile = el('div', 'character-stats__tile');
@@ -315,9 +312,36 @@ export class SidePanel {
       stats.append(tile);
     }
 
+    const pointsTitle = el('h3', undefined, `Distribuir atributos · ${p.unspentAttributePoints} ponto(s)`);
+    pointsTitle.style.cssText = 'font-size:0.95rem;margin:12px 0 6px;';
+    const attributes = el('div', 'character-stats__attributes');
+    attributes.style.cssText = 'display:grid;gap:6px;';
+    const attributeRows: Array<{ key: AttributeName; label: string; value: number; effect: string }> = [
+      { key: 'strength', label: 'Força', value: p.attributes.strength, effect: '+1 dano por ponto' },
+      { key: 'vitality', label: 'Vitalidade', value: p.attributes.vitality, effect: '+10 PV máximos por ponto' },
+      { key: 'defense', label: 'Defesa', value: p.attributes.defense, effect: '−1 dano recebido por ponto (mín. 1)' },
+    ];
+    for (const attribute of attributeRows) {
+      const row = el('div', 'character-stats__attribute-row');
+      row.style.cssText = 'display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;background:#171923;border:1px solid #343746;padding:8px 9px;border-radius:4px;';
+      const info = el('div');
+      info.append(el('strong', undefined, attribute.label), el('div', undefined, attribute.effect));
+      info.lastElementChild && ((info.lastElementChild as HTMLElement).style.cssText = 'font-size:0.72rem;opacity:0.72;margin-top:2px;');
+      row.append(info, el('strong', undefined, String(attribute.value)));
+      const add = el('button', 'btn-attribute', '+');
+      add.type = 'button';
+      add.title = `Adicionar 1 ponto em ${attribute.label}`;
+      add.setAttribute('aria-label', add.title);
+      add.disabled = p.unspentAttributePoints < 1 || this.state.phase !== 'player' || selected.hp <= 0;
+      add.style.cssText = 'min-width:34px;height:32px;border:1px solid #8b7be8;border-radius:4px;background:#342c57;color:#fff;font-weight:700;cursor:pointer;';
+      add.addEventListener('click', () => this.state.allocateSelectedAttribute(attribute.key));
+      row.append(add);
+      attributes.append(row);
+    }
+
     this.characterStatsBox.hidden = false;
     this.characterStatsBox.style.cssText = 'padding:12px;margin:8px 0;background:#20212b;border:1px solid #4b465e;border-radius:5px;color:#f3f0ff;';
-    this.characterStatsBox.replaceChildren(header, xpRow, xpBar, remaining, stats);
+    this.characterStatsBox.replaceChildren(header, xpRow, xpBar, remaining, stats, pointsTitle, attributes);
   }
 
   /** Mostra nome, descrição, disponibilidade e controles da habilidade do herói selecionado. */
