@@ -159,17 +159,22 @@ export class Campaign {
   /** Reinicia uma expedição no andar 1 sem apagar níveis, XP ou atributos permanentes. */
   restart(): void {
     this.floorIndex = 0;
+    const restoreStarterEquipment = this.expeditionItemsLost;
+
     for (const hero of this.partyUnits) {
-      for (const slot of ['right-glove', 'left-glove', 'boots', 'chest', 'helmet', 'pants', 'weapon', 'off-hand'] as const) {
-        this.inventory.unequip(hero, slot);
-      }
       hero.hp = hero.maxHp;
       hero.abilityUsed = false;
       hero.stunned = false;
     }
-    this.inventory.clear();
-    this.addStarterEquipment();
+
+    // Uma incursão concluída preserva inventário e equipamentos. Só repomos o kit inicial
+    // quando a incursão anterior terminou em derrota e os itens foram perdidos.
+    if (restoreStarterEquipment) {
+      this.inventory.clear();
+      this.addStarterEquipment();
+    }
     this.expeditionItemsLost = false;
+
     if (this.activePartyUids.length === 0) this.activePartyUids = this.partyUnits.slice(0, 3).map((hero) => hero.uid);
     this.battle.reset();
   }
