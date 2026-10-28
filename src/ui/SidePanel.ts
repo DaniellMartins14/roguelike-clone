@@ -80,10 +80,12 @@ export class SidePanel {
   private readonly logEl = el('ol', 'log');
   private readonly passButton = el('button', 'btn-pass', 'Passar a vez');
   private transitionScheduled = false;
+  private readonly onRestart?: () => void;
 
   constructor(root: HTMLElement, campaign: Campaign, onRestart?: () => void) {
     this.campaign = campaign;
     this.state = campaign.battle;
+    this.onRestart = onRestart;
 
     const title = el('h1', undefined, 'Roguelike Alfa');
 
@@ -169,7 +171,7 @@ export class SidePanel {
           this.campaign.advance();
           this.transitionScheduled = false;
         } else if (status === 'defeated' || status === 'completed') {
-          onRestart?.();
+          this.onRestart?.();
         }
       }, 1200);
     }
