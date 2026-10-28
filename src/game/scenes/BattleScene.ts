@@ -114,6 +114,7 @@ export class BattleScene extends Phaser.Scene {
   private unsubscribe: (() => void) | null = null;
   /** Temporizador do próximo passo da resolução do turno (null quando não há resolução). */
   private stepTimer: Phaser.Time.TimerEvent | null = null;
+  private disposed = false;
 
   constructor(campaign: Campaign) {
     super({ key: 'BattleScene' });
@@ -153,16 +154,24 @@ export class BattleScene extends Phaser.Scene {
     this.createOutcomeOverlay();
     this.createThreatText();
 
-    this.unsubscribe = this.gameState.subscribe((event) => this.onStateChange(event));
+    this.disposed = false;
+    this.unsubscribe = this.gameState.subscribe((event) => {
+      // Ignore notifications delivered while Phaser is shutting this scene down.
+      if (this.disposed || !this.sys.isActive() || !this.outcomeTitle?.active) return;
+      this.onStateChange(event);
+    });
     // ESC cancela a escolha de alvo de uma habilidade.
     this.input.keyboard?.on('keydown-ESC', this.handleEscape, this);
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    const disposeScene = () => {
+      this.disposed = true;
       this.input.keyboard?.off('keydown-ESC', this.handleEscape, this);
       this.cancelStep();
       this.unsubscribe?.();
       this.unsubscribe = null;
-    });
+    };
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, disposeScene);
+    this.events.once(Phaser.Scenes.Events.DESTROY, disposeScene);
 
     this.refresh(false);
   }
