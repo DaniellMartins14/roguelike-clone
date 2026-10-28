@@ -118,7 +118,8 @@ export class Campaign {
 
   /** Sincroniza o estado de batalha com a equipe selecionada, antes de a cena assinar eventos. */
   syncActiveEncounter(): void {
-    this.battle.loadEncounter(this.createEncounter());
+    // A cena ainda está sendo criada: atualiza os dados sem emitir evento para listeners antigos.
+    this.battle.loadEncounter(this.createEncounter(), false);
   }
 
   get status(): CampaignStatus {
