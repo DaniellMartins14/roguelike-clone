@@ -13,6 +13,10 @@ if (!gameContainer || !panelRoot) {
   throw new Error('Elementos #game-container e #panel não encontrados no index.html');
 }
 
+// Capturamos referências já validadas em constantes para manter o narrowing do TypeScript dentro dos callbacks.
+const gameRoot: HTMLElement = gameContainer;
+const panel: HTMLElement = panelRoot;
+
 const campaign = new Campaign();
 let game: Phaser.Game | null = null;
 
@@ -20,19 +24,19 @@ function showPreparation(resetCampaign = false): void {
   game?.destroy(true);
   game = null;
   if (resetCampaign) campaign.restart();
-  gameContainer.hidden = true;
-  gameContainer.style.display = 'none';
-  new PreparationScreen(panelRoot, campaign, startExpedition);
+  gameRoot.hidden = true;
+  gameRoot.style.display = 'none';
+  new PreparationScreen(panel, campaign, startExpedition);
 }
 
 function startExpedition(): void {
-  panelRoot.replaceChildren();
-  gameContainer.hidden = false;
-  gameContainer.style.display = '';
-  new SidePanel(panelRoot, campaign, () => showPreparation(true));
+  panel.replaceChildren();
+  gameRoot.hidden = false;
+  gameRoot.style.display = '';
+  new SidePanel(panel, campaign, () => showPreparation(true));
   game = new Phaser.Game({
     type: Phaser.AUTO,
-    parent: gameContainer,
+    parent: gameRoot,
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     backgroundColor: '#0b1220',
