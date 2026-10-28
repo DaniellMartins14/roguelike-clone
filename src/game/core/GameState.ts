@@ -1,4 +1,5 @@
 import { ABILITY_BALANCE } from './abilities';
+import { awardKillXp } from './progression';
 import { createInitialBattle } from '../data/battleSetup';
 import type { BattleFactory, BattleSetup } from '../data/battleSetup';
 import type {
@@ -297,7 +298,8 @@ export class GameState {
       case 'exura': {
         const target = targeting.targetUid === null ? null : this.findUnit(targeting.targetUid);
         if (!target) return 'Clique em um herói ferido para curá-lo.';
-        const amount = healAmount(target, ABILITY_BALANCE.exuraHealRatio);
+        const source = this.findUnit(targeting.heroUid);
+        const amount = source ? healAmount(target, ABILITY_BALANCE.exuraHealRatio, source) : 0;
         return `${target.definition.name} recuperará ${amount} PV. Confirme a cura ou escolha outro herói.`;
       }
     }
@@ -560,7 +562,7 @@ export class GameState {
           this.rejectConfirm('Escolha um herói vivo antes de confirmar.');
           return false;
         }
-        if (healAmount(target, ABILITY_BALANCE.exuraHealRatio) === 0) {
+        if (healAmount(target, ABILITY_BALANCE.exuraHealRatio, hero) === 0) {
           this.rejectConfirm(`${target.definition.name} já está com PV máximo.`, true);
           return false;
         }
@@ -718,14 +720,14 @@ export class GameState {
     const kind: LogKind = attacker.definition.team === 'hero' ? 'hero' : 'monster';
 
     for (const target of targets) {
-      this.dealDamage(target, attacker.damage, kind, `${attacker.definition.name} atacou`);
+      this.dealDamage(target, attacker.damage, kind, `${attacker.definition.name} atacou`, attacker);
     }
 
     return targets.length;
   }
 
   /** Aplica dano (HP nunca fica abaixo de zero), registra o golpe e a morte. */
-  private dealDamage(target: Unit, amount: number, kind: LogKind, prefix: string): void {
+  private dealDamage(target: Unit, amount: number, kind: LogKind, prefix: string, attacker?: Unit): void {
     if (!isAlive(target)) return;
     const cell = positionLabel(target.position);
     target.hp = Math.max(0, target.hp - amount);
@@ -745,6 +747,10 @@ export class GameState {
     );
     if (killed) {
       this.addLog(`${target.definition.name} foi derrotado!`, 'death');
+      if (attacker && attacker.definition.team === 'hero' && target.definition.team === 'monster') {
+        const gained = awardKillXp(attacker, target);
+        if (gained > 0) this.addLog(`${attacker.definition.name} recebeu ${gained} XP pelo golpe final.`, 'hero');
+      }
       // Chefe morto não executa o golpe que tinha anunciado.
       this.cancelTelegraphsOf(target, `foi derrotado antes de concluir o golpe`);
     }
@@ -848,7 +854,7 @@ export class GameState {
       this.addLog('Ninguém estava nas casas atingidas.', 'telegraph');
     }
     for (const victim of victims) {
-      this.dealDamage(victim, intent.damage, 'monster', `${intent.attackName} atingiu`);
+      this.dealDamage(victim, intent.damage, 'monster', `${intent.attackName} atingiu`, boss);
     }
 
     // Começa a pausa antes do próximo anúncio.
@@ -933,7 +939,7 @@ export class GameState {
       if (!isAlive(target)) break;
       // Cada golpe é um ataque normal: o alvo precisa estar no padrão de ataque da classe.
       if (!findAttackTargets(hero, this.combatContext()).includes(target)) break;
-      this.dealDamage(target, hero.damage, 'hero', `${hero.definition.name} atacou`);
+      this.dealDamage(target, hero.damage, 'hero', `${hero.definition.name} atacou`, hero);
     }
   }
 
@@ -947,7 +953,7 @@ export class GameState {
       return;
     }
     for (const target of targets) {
-      this.dealDamage(target, ABILITY_BALANCE.piercingShotDamage, 'hero', 'Tiro Perfurante atingiu');
+      this.dealDamage(target, ABILITY_BALANCE.piercingShotDamage, 'hero', 'Tiro Perfurante atingiu', hero);
     }
   }
 
@@ -962,13 +968,13 @@ export class GameState {
     }
     for (const target of targets) {
       const prefix = target === hero ? 'Bola de Fogo atingiu o próprio conjurador,' : 'Bola de Fogo atingiu';
-      this.dealDamage(target, ABILITY_BALANCE.fireballDamage, 'hero', prefix);
+      this.dealDamage(target, ABILITY_BALANCE.fireballDamage, 'hero', prefix, hero);
     }
   }
 
   /** Exura: cura 50% do PV máximo (arredondado para cima), sem passar do máximo. */
   private castExura(hero: Unit, target: Unit): void {
-    const amount = healAmount(target, ABILITY_BALANCE.exuraHealRatio);
+    const amount = healAmount(target, ABILITY_BALANCE.exuraHealRatio, hero);
     target.hp += amount;
     this.effect = { id: 'exura', cells: unitCells(target) };
     this.healEvents.push({
@@ -1062,7 +1068,8 @@ export class GameState {
       this.setNotice('Escolha um herói vivo para curar (monstros e casas vazias não valem).');
       return false;
     }
-    if (healAmount(clicked, ABILITY_BALANCE.exuraHealRatio) === 0) {
+    const healer = this.findUnit(targeting.heroUid);
+    if (!healer || healAmount(clicked, ABILITY_BALANCE.exuraHealRatio, healer) === 0) {
       this.setNotice(`${clicked.definition.name} já está com PV máximo.`, true);
       return false;
     }

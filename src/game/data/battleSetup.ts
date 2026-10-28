@@ -1,4 +1,5 @@
 import type { Position, Unit, UnitDefinition } from '../types';
+import { createHeroProgression } from '../core/progression';
 import { ARCHER, ASSASSIN, CLERIC, MAGE, WARRIOR } from './heroes';
 import { GOBLIN, SKELETON, SLIME } from './monsters';
 
@@ -25,6 +26,7 @@ export function createUnit(definition: UnitDefinition, position: Position, uid: 
     hp: definition.maxHp,
     maxHp: definition.maxHp,
     damage: definition.damage,
+    ...(definition.team === 'hero' ? { progression: createHeroProgression(), equipment: {} } : {}),
     position: { col: position.col, row: position.row },
     facing: definition.team === 'hero' ? { col: 0, row: -1 } : { col: 0, row: 1 },
     abilityUsed: false,

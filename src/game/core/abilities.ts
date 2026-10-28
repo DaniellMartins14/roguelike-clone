@@ -14,7 +14,7 @@ export const ABILITY_BALANCE = {
   ambushAttacks: 2,
   piercingShotDamage: 5,
   fireballDamage: 7,
-  exuraHealRatio: 0.5,
+  exuraHealRatio: 0.65,
 } as const;
 
 export const STOMP: AbilityDefinition = {
@@ -48,7 +48,7 @@ export const FIREBALL: AbilityDefinition = {
 export const EXURA: AbilityDefinition = {
   id: 'exura',
   name: 'Exura',
-  description: 'Recupera 50% dos PV máximos de um herói.',
+  description: 'Recupera PV equivalentes a 65% dos PV máximos do próprio Clérigo.',
   target: 'hero',
 };
 /**
@@ -178,8 +178,8 @@ export function fireballTargets(center: Position, units: readonly Unit[]): Unit[
  * Quantidade efetivamente curada: `ratio` do PV máximo arredondada para cima, limitada ao que
  * falta para o PV máximo. Retorna 0 se o alvo já está com a vida cheia.
  */
-export function healAmount(target: Unit, ratio: number): number {
-  const wanted = Math.ceil(target.maxHp * ratio);
+export function healAmount(target: Unit, ratio: number, source: Unit = target): number {
+  const wanted = Math.ceil(source.maxHp * ratio);
   return Math.max(0, Math.min(wanted, target.maxHp - target.hp));
 }
 
