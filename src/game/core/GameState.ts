@@ -984,7 +984,7 @@ export class GameState {
       return;
     }
     for (const target of targets) {
-      this.dealDamage(target, ABILITY_BALANCE.piercingShotDamage, 'hero', 'Tiro Perfurante atingiu', hero);
+      this.dealDamage(target, hero.damage, 'hero', 'Tiro Perfurante atingiu', hero);
     }
   }
 
