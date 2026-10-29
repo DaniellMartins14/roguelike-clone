@@ -206,14 +206,16 @@ export class BattleScene extends Phaser.Scene {
 
   private drawBoard(): void {
     this.refreshBoardBackground();
-    // Moldura
-    this.add.rectangle(
+    // Moldura sem preenchimento: não deve criar um retângulo opaco atrás das casas.
+    const frame = this.add.rectangle(
       BOARD_MARGIN + BOARD_WIDTH / 2,
       BOARD_MARGIN + BOARD_HEIGHT / 2,
       BOARD_WIDTH + 8,
       BOARD_HEIGHT + 8,
-      COLORS.frame,
+      0x000000,
+      0,
     );
+    frame.setStrokeStyle(2, COLORS.frame, 0.9);
 
     const labelStyle = {
       fontFamily: 'system-ui, sans-serif',
@@ -231,7 +233,7 @@ export class BattleScene extends Phaser.Scene {
           ? ((col + row) % 2 === 0 ? 0x171717 : 0x7f1d1d)
           : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
 
-        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color, 0.18);
+        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color, 0.3);
         this.boardTiles.push({ tile, col, row });
         tile.setStrokeStyle(1, COLORS.tileBorder);
         tile.setInteractive({ useHandCursor: true });
@@ -288,7 +290,7 @@ export class BattleScene extends Phaser.Scene {
       const color = regionTwo
         ? ((col + row) % 2 === 0 ? 0x090909 : 0x8b0000)
         : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
-      tile.setFillStyle(color, 0.18);
+      tile.setFillStyle(color, 0.3);
     }
   }
 
