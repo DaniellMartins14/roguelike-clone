@@ -199,7 +199,7 @@ export class BattleScene extends Phaser.Scene {
       for (let col = 0; col < BOARD_COLS; col++) {
         const cell: Position = { col, row };
         const { x, y } = cellToPixel(cell);
-        const regionTwo = this.campaign.currentFloor >= 11 && this.campaign.currentFloor <= 20;
+        const regionTwo = this.campaign.floorNumber >= 11 && this.campaign.floorNumber <= 20;
         const color = regionTwo
           ? ((col + row) % 2 === 0 ? 0x171717 : 0x7f1d1d)
           : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
