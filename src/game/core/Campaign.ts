@@ -40,10 +40,12 @@ export class Campaign {
   private normalItemDroppedThisFloor = false;
   /** Itens já consolidados em extrações anteriores; os novos são temporários até extrair. */
   private retainedItemIds = new Set<string>();
+  /** Ouro consolidado em extrações anteriores; o ganho durante a incursão é temporário. */
+  private retainedGold = 0;
 
   /** Recompensas obtidas no andar atual, exibidas ao vencer. */
   get victoryRewards(): readonly string[] { return this.rewardMessages; }
-  /** Ouro permanente do jogador, preservado entre incursões e derrotas. */
+  /** Saldo atual: inclui o ouro temporário da incursão até a próxima extração. */
   gold = 0;
   /** Inventário compartilhado do jogador; os equipamentos são referências nos heróis. */
   readonly inventory = new PlayerInventory();
@@ -179,13 +181,15 @@ export class Campaign {
   extract(): boolean {
     if (!this.canExtract) return false;
     this.retainedItemIds = new Set(this.inventory.instanceIds);
+    this.retainedGold = this.gold;
     this.restart(false);
     return true;
   }
 
-  /** Descarta os itens obtidos nesta incursão, inclusive os que foram equipados temporariamente. */
+  /** Descarta o saque e o ouro desta incursão, inclusive itens temporários que foram equipados. */
   loseExpeditionItems(): void {
     this.inventory.removeItemsExcept(this.retainedItemIds, this.partyUnits);
+    this.gold = this.retainedGold;
   }
 
   private collectMonsterRewards(): void {
@@ -301,6 +305,7 @@ export class Campaign {
     if (this.activePartyUids.length === 0) this.activePartyUids = this.partyUnits.slice(0, 3).map((hero) => hero.uid);
     this.battle.reset(notify);
     this.retainedItemIds = new Set(this.inventory.instanceIds);
+    this.retainedGold = this.gold;
   }
 
   // ---------- Internos ----------
