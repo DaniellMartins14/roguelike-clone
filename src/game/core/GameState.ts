@@ -83,6 +83,7 @@ const MAX_LOG_ENTRIES = 200;
  */
 export class GameState {
   private readonly createBattle: BattleFactory;
+  private readonly specialBonusesFor: (hero: Unit) => { defensePercent: number; lifestealPercent: number };
   /** Todas as unidades da batalha, inclusive as derrotadas (hp <= 0). */
   private allUnits: Unit[] = [];
   private obstacleList: Position[] = [];
@@ -104,8 +105,12 @@ export class GameState {
   private effect: AbilityEffect | null = null;
   private readonly listeners = new Set<Listener>();
 
-  constructor(createBattle: BattleFactory = createInitialBattle) {
+  constructor(
+    createBattle: BattleFactory = createInitialBattle,
+    specialBonusesFor: (hero: Unit) => { defensePercent: number; lifestealPercent: number } = () => ({ defensePercent: 0, lifestealPercent: 0 }),
+  ) {
     this.createBattle = createBattle;
+    this.specialBonusesFor = specialBonusesFor;
     this.setup();
   }
 
@@ -756,7 +761,9 @@ export class GameState {
     if (!isAlive(target)) return;
     const cell = positionLabel(target.position);
     const defense = target.definition.team === 'hero' ? (target.progression?.attributes.defense ?? 0) : 0;
-    const effectiveAmount = target.definition.team === 'hero' ? Math.max(1, amount - defense) : amount;
+    const targetSpecial = target.definition.team === 'hero' ? this.specialBonusesFor(target) : { defensePercent: 0, lifestealPercent: 0 };
+    const afterPercent = Math.floor(amount * (1 - targetSpecial.defensePercent / 100));
+    const effectiveAmount = target.definition.team === 'hero' ? Math.max(1, afterPercent - defense) : amount;
     target.hp = Math.max(0, target.hp - effectiveAmount);
     const killed = target.hp === 0;
 
@@ -772,6 +779,15 @@ export class GameState {
         `PV ${target.hp}/${target.maxHp}.`,
       kind,
     );
+    if (attacker && attacker.definition.team === 'hero' && attacker.hp > 0 && target.definition.team === 'monster') {
+      const lifesteal = this.specialBonusesFor(attacker).lifestealPercent;
+      const healing = Math.min(attacker.maxHp - attacker.hp, Math.floor(effectiveAmount * lifesteal / 100));
+      if (healing > 0) {
+        attacker.hp += healing;
+        this.addLog(`${attacker.definition.name} recuperou ${healing} PV pelo Dente do Sétimo.`, 'hero');
+        this.healEvents.push({ targetUid: attacker.uid, amount: healing, position: { col: attacker.position.col, row: attacker.position.row } });
+      }
+    }
     if (killed) {
       this.addLog(`${target.definition.name} foi derrotado!`, 'death');
       if (target.definition.team === 'hero') {
