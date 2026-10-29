@@ -237,13 +237,16 @@ describe('Reinício da campanha', () => {
 });
 
 describe('Persistência dos itens da expedição', () => {
-  it('perde os itens não equipados da incursão, mas mantém o equipamento vestido ao morrer', () => {
+  it('perde os itens obtidos na incursão e mantém os itens consolidados na extração', () => {
     const campaign = new Campaign();
+    goToFloor(campaign, 5);
     const warrior = heroNamed(campaign, 'warrior');
     const equipped = campaign.inventory.add('short-sword');
-    const temporary = campaign.inventory.add('axe');
     expect(campaign.inventory.equip(warrior, equipped.instanceId, ITEM_DEFINITIONS)).toBe(true);
+    winFloor(campaign);
+    expect(campaign.extract()).toBe(true);
 
+    const temporary = campaign.inventory.add('axe');
     loseFloor(campaign);
 
     expect(campaign.status).toBe('defeated');
