@@ -35,6 +35,7 @@ export class PreparationScreen {
   private readonly campaign: Campaign;
   private readonly onStart: () => void;
   private message = '';
+  private inventoryOpen = false;
 
   constructor(root: HTMLElement, campaign: Campaign, onStart: () => void) {
     this.root = root;
@@ -251,13 +252,13 @@ export class PreparationScreen {
     closeInventory.type = 'button';
     closeInventory.textContent = 'Fechar ✕';
     closeInventory.style.cssText = STYLE.button;
-    const closeWindow = () => { inventoryWindow.style.display = 'none'; };
+    const closeWindow = () => { this.inventoryOpen = false; inventoryWindow.style.display = 'none'; };
     closeInventory.addEventListener('click', closeWindow);
     inventoryWindow.addEventListener('click', (event) => { if (event.target === inventoryWindow) closeWindow(); });
     inventoryHeader.append(inventoryWindowTitle, closeInventory);
     inventoryDialog.append(inventoryHeader, equipmentCard);
     inventoryWindow.append(inventoryDialog);
-    inventoryButton.addEventListener('click', () => { inventoryWindow.style.display = 'flex'; });
+    inventoryButton.addEventListener('click', () => { this.inventoryOpen = true; inventoryWindow.style.display = 'flex'; });
     right.append(inventoryButton);
     page.append(inventoryWindow);
     columns.append(left, right);
@@ -283,6 +284,8 @@ export class PreparationScreen {
     footer.append(summary, warning, start);
     page.append(footer);
     this.root.replaceChildren(page);
+    // Recriar a tela após equipar/vender mantém o inventário aberto até o jogador fechá-lo.
+    if (this.inventoryOpen) inventoryWindow.style.display = 'flex';
   }
 
   private findFreePosition(): Position | null {
