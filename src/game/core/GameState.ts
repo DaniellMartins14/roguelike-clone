@@ -1015,7 +1015,7 @@ export class GameState {
     }
     for (const target of targets) {
       const prefix = target === hero ? 'Bola de Fogo atingiu o próprio conjurador,' : 'Bola de Fogo atingiu';
-      this.dealDamage(target, ABILITY_BALANCE.fireballDamage, 'hero', prefix, hero);
+      this.dealDamage(target, hero.damage, 'hero', prefix, hero);
     }
   }
 
