@@ -36,6 +36,9 @@ export class Campaign {
   private expeditionItemsLost = false;
   private readonly rewardedMonsterUids = new Set<string>();
   private readonly rewardMessages: string[] = [];
+  private rewardGold = 0;
+  private readonly rewardDrops: string[] = [];
+  private normalItemDroppedThisFloor = false;
 
   /** Recompensas obtidas no andar atual, exibidas ao vencer. */
   get victoryRewards(): readonly string[] { return this.rewardMessages; }
@@ -155,6 +158,9 @@ export class Campaign {
     this.floorIndex += 1;
     this.rewardedMonsterUids.clear();
     this.rewardMessages.length = 0;
+    this.rewardGold = 0;
+    this.rewardDrops.length = 0;
+    this.normalItemDroppedThisFloor = false;
     prepareParty(this.activeParty);
     this.battle.loadEncounter(this.createEncounter());
     return true;
@@ -185,6 +191,7 @@ export class Campaign {
       const rank = monster.definition.rank ?? 'normal';
       const reward = rank === 'boss' ? 100 : rank === 'mini-boss' ? 35 : 5;
       this.gold += reward;
+      this.rewardGold += reward;
       const drops: string[] = [];
       const roll = Math.random();
       // Armas de classe: chance comum de drop, com pool específico por faixa.
@@ -198,12 +205,13 @@ export class Campaign {
         mage: ['magic-wand', 'magic-staff', 'damage-tome'], cleric: ['white-glove', 'superior-consecrated-staff', 'vitality-tome'],
         archer: ['expert-shortbow', 'expert-longbow'],
       };
-      if (rank === 'normal' && this.floorNumber >= 1 && this.floorNumber <= 9 && roll < 0.30) {
+      if (!this.normalItemDroppedThisFloor && rank === 'normal' && this.floorNumber >= 1 && this.floorNumber <= 9 && roll < 0.10) {
         const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierOneWeapons);
         const pool = classes.flatMap((id) => tierOneWeapons[id] ?? []);
         const item = this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
         drops.push(ITEM_DEFINITIONS[item.definitionId]?.name ?? item.definitionId);
-      } else if (rank === 'normal' && this.floorNumber >= 11 && this.floorNumber <= 19 && roll < 0.35) {
+        this.normalItemDroppedThisFloor = true;
+      } else if (!this.normalItemDroppedThisFloor && rank === 'normal' && this.floorNumber >= 11 && this.floorNumber <= 19 && roll < 0.10) {
         const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierTwoWeapons);
         const pool = classes.flatMap((id) => tierTwoWeapons[id] ?? []);
         const item = this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
@@ -250,7 +258,12 @@ export class Campaign {
         drops.push('Calça de Viajante');
       }
 
-      this.rewardMessages.push(drops.length ? `${reward} moedas de ouro + ${drops.join(', ')}` : `${reward} moedas de ouro`);
+      this.rewardDrops.push(...drops);
+      this.rewardMessages.splice(0, this.rewardMessages.length,
+        this.rewardDrops.length
+          ? `${this.rewardGold} moedas de ouro + ${this.rewardDrops.join(', ')}`
+          : `${this.rewardGold} moedas de ouro`,
+      );
     }
   }
 
@@ -265,6 +278,10 @@ export class Campaign {
   restart(notify = true): void {
     this.floorIndex = 0;
     this.rewardedMonsterUids.clear();
+    this.rewardMessages.length = 0;
+    this.rewardGold = 0;
+    this.rewardDrops.length = 0;
+    this.normalItemDroppedThisFloor = false;
     const restoreStarterEquipment = this.expeditionItemsLost;
 
     for (const hero of this.partyUnits) {
