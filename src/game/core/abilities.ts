@@ -12,7 +12,6 @@ import type { AttackContext } from './combat';
 import { isAlive } from './combat';
 export const ABILITY_BALANCE = {
   ambushAttacks: 2,
-  piercingShotDamage: 5,
   fireballDamage: 7,
   exuraHealRatio: 0.65,
 } as const;
@@ -34,7 +33,7 @@ export const AMBUSH: AbilityDefinition = {
 export const PIERCING_SHOT: AbilityDefinition = {
   id: 'piercing-shot',
   name: 'Tiro Perfurante',
-  description: 'Dispara em linha reta, atravessando todas as unidades.',
+  description: 'Dispara em linha reta, atravessando todas as unidades e causando dano igual ao dano atual do Arqueiro.',
   target: 'direction',
 };
 
