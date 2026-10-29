@@ -2,6 +2,7 @@ import type { Campaign, CampaignStatus } from '../game/core/Campaign';
 import type { GameState } from '../game/core/GameState';
 import type { BattlePhase, EncounterType, Unit } from '../game/types';
 import { xpRequiredForNextLevel } from '../game/core/progression';
+import { ITEM_DEFINITIONS } from '../game/data/items';
 import type { AttributeName } from '../game/core/progression';
 
 const MODE_LABEL: Record<CampaignStatus, string> = {
@@ -77,6 +78,7 @@ export class SidePanel {
   private readonly confirmButton = el('button', 'btn-confirm', 'Confirmar');
   private readonly cancelButton = el('button', 'btn-cancel', 'Cancelar');
 
+  private readonly inventoryEl = el('div', 'unit-list');
   private readonly heroesEl = el('div', 'unit-list');
   private readonly monstersEl = el('div', 'unit-list');
   private readonly logEl = el('ol', 'log');
@@ -128,6 +130,7 @@ export class SidePanel {
       campaignBox,
       turnBox,
       section('Heróis', this.heroesEl),
+      section('Inventário · botão vender drop', this.inventoryEl),
       actions,
       this.advanceButton,
       this.extractButton,
@@ -204,6 +207,7 @@ export class SidePanel {
     const canAct = phase === 'player';
     const floor = this.campaign.floorNumber;
     this.goldEl.textContent = `🪙 Ouro: ${this.campaign.gold}`;
+    this.renderInventory();
 
     this.floorEl.textContent = `Andar ${floor}/${this.campaign.totalFloors}`;
     this.encounterEl.textContent = this.campaign.encounterLabel;
@@ -309,6 +313,30 @@ export class SidePanel {
 
 
   /** Painel de atributos e progresso do herói selecionado. */
+  private renderInventory(): void {
+    this.inventoryEl.replaceChildren();
+    const items = this.campaign.inventory.items;
+    if (items.length === 0) {
+      this.inventoryEl.append(el('p', undefined, 'Nenhum drop disponível para vender.'));
+      return;
+    }
+    for (const item of items) {
+      const definition = ITEM_DEFINITIONS[item.definitionId];
+      if (!definition) continue;
+      const row = el('div', 'unit-card');
+      row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;margin:4px 0;';
+      const label = el('span', undefined, `${definition.name} · venda: ${definition.sellPrice} ouro`);
+      const sell = el('button', 'btn-sell', 'Vender drop');
+      sell.type = 'button';
+      sell.addEventListener('click', () => {
+        this.campaign.sellInventoryItem(item.instanceId);
+        this.render();
+      });
+      row.append(label, sell);
+      this.inventoryEl.append(row);
+    }
+  }
+
   private renderCharacterStats(selected: Unit | null): void {
     if (!selected || selected.definition.team !== 'hero' || !selected.progression) {
       this.characterStatsBox.hidden = true;
