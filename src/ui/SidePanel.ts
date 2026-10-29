@@ -246,7 +246,7 @@ export class SidePanel {
     this.renderCharacterStats(selected);
     this.renderAbility(selected, canAct);
 
-    this.heroesEl.replaceChildren(...this.state.heroRoster.map((unit) => this.createUnitCard(unit)));
+    this.heroesEl.replaceChildren(...this.campaign.activeParty.map((unit) => this.createUnitCard(unit)));
     this.monstersEl.replaceChildren(...this.state.monsterRoster.map((unit) => this.createUnitCard(unit)));
 
     const items = this.state.log.map((entry) => {
