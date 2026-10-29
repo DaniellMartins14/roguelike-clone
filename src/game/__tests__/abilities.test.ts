@@ -315,7 +315,7 @@ describe('Tiro Perfurante (Arqueiro)', () => {
 
 // ---------------------------------------------------------------------------------------------
 describe('Bola de Fogo (Mago)', () => {
-  const damage = ABILITY_BALANCE.fireballDamage;
+  const damage = MAGE.damage;
 
   /** Prévia da área para um centro, sem usar a habilidade. */
   function areaFor(center: Position): Position[] {
@@ -347,6 +347,19 @@ describe('Bola de Fogo (Mago)', () => {
     expect(find(state, 'slime').hp).toBe(SLIME.maxHp - damage);
     expect(find(state, 'skeleton').hp).toBe(SKELETON.maxHp);
     expect(find(state, 'cleric').hp).toBe(CLERIC.maxHp);
+  });
+
+  it('escala o dano conforme o dano atual do Mago', () => {
+    const state = stateWith(() => [unit(MAGE, 2, 2), unit(GOBLIN, 3, 3)]);
+    const mage = find(state, 'mage');
+    const goblin = find(state, 'goblin');
+    mage.damage += 6;
+    const expectedDamage = mage.damage;
+
+    expect(castAbility(state, mage, [cell(3, 3)])).toBe(true);
+
+    expect(goblin.hp).toBe(GOBLIN.maxHp - expectedDamage);
+    expect(mage.hp).toBe(MAGE.maxHp - expectedDamage);
   });
 
   it('recorta a área nos cantos e nas bordas da grade 6×6', () => {
