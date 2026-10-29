@@ -30,7 +30,8 @@ export function applyDeathXpPenalty(hero: Unit): number {
   return lost;
 }
 export function xpRewardForMonster(monster: Unit): number {
-  const multiplier = monster.definition.rank === 'boss' ? 10 : monster.definition.rank === 'mini-boss' ? 4 : 1;
+  // Chefes devem ser recompensas melhores, sem causar saltos enormes de nível.
+  const multiplier = monster.definition.rank === 'boss' ? 2.5 : monster.definition.rank === 'mini-boss' ? 1.5 : 1;
   return Math.max(10, Math.round((monster.definition.maxHp + monster.definition.damage * 3) * multiplier));
 }
 export function awardKillXp(hero: Unit, monster: Unit): number {
