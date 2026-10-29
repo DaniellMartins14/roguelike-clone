@@ -55,7 +55,7 @@ export class Campaign {
     this.partyUnits = createParty();
     this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
     this.addStarterEquipment();
-    this.battle = new GameState(() => this.createEncounter());
+    this.battle = new GameState(() => this.createEncounter(), (hero) => this.inventory.specialBonusesFor(hero));
     this.battle.subscribe(() => this.collectMonsterRewards());
   }
 
@@ -180,36 +180,50 @@ export class Campaign {
       const reward = rank === 'boss' ? 100 : rank === 'mini-boss' ? 35 : 5;
       this.gold += reward;
 
-      if (this.floorNumber === 2 && rank === 'normal') {
-        this.inventory.add('short-sword');
-      } else if (this.floorNumber === 3 && rank === 'normal') {
-        this.inventory.add('knife');
-      } else if (this.floorNumber === 4 && rank === 'normal') {
-        this.inventory.add('wand');
-      } else if (this.floorNumber === 5 && rank === 'mini-boss') {
+      const roll = Math.random();
+      // Armas de classe: chance comum de drop, com pool específico por faixa.
+      const tierOneWeapons: Record<string, string[]> = {
+        warrior: ['short-sword', 'axe'], assassin: ['knife', 'dagger', 'offhand-knife', 'offhand-dagger'],
+        mage: ['wand', 'staff', 'magic-tome'], cleric: ['glove', 'consecrated-staff', 'cleric-tome'],
+        archer: ['shortbow', 'longbow'],
+      };
+      const tierTwoWeapons: Record<string, string[]> = {
+        warrior: ['long-sword', 'double-axe', 'iron-shield'], assassin: ['sharp-knife', 'sharp-dagger', 'offhand-sharp-knife', 'offhand-sharp-dagger'],
+        mage: ['magic-wand', 'magic-staff', 'damage-tome'], cleric: ['white-glove', 'superior-consecrated-staff', 'vitality-tome'],
+        archer: ['expert-shortbow', 'expert-longbow'],
+      };
+      if (rank === 'normal' && this.floorNumber >= 1 && this.floorNumber <= 9 && roll < 0.30) {
+        const pool = Object.values(tierOneWeapons).flat();
+        this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
+      } else if (rank === 'normal' && this.floorNumber >= 11 && this.floorNumber <= 19 && roll < 0.35) {
+        const pool = Object.values(tierTwoWeapons).flat();
+        this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
+      }
+
+      // Drops raros: amuletos com chance menor; chefes têm chances maiores.
+      if (this.floorNumber === 5 && rank === 'mini-boss' && Math.random() < 0.10) {
+        this.inventory.add('shadow-claw');
+      } else if (this.floorNumber === 10 && rank === 'boss' && Math.random() < 0.20) {
+        this.inventory.add('cthulhu-tentacle');
+      } else if (this.floorNumber === 15 && rank === 'mini-boss' && Math.random() < 0.15) {
+        this.inventory.add('winter-cloak');
+      } else if (this.floorNumber === 20 && rank === 'boss' && Math.random() < 0.25) {
+        this.inventory.add('seventh-fang');
+      }
+
+      // Recompensas garantidas de marcos da campanha.
+      if (this.floorNumber === 5 && rank === 'mini-boss') {
         this.inventory.add('leather-boots');
       } else if (this.floorNumber === 10 && rank === 'boss') {
         this.inventory.add('padded-chest');
         this.inventory.add('rusty-sword');
-      } else if (this.floorNumber === 11 && rank === 'normal') {
-        this.inventory.add('sharp-knife');
-      } else if (this.floorNumber === 12 && rank === 'normal') {
-        this.inventory.add('magic-wand');
-      } else if (this.floorNumber === 13 && rank === 'normal') {
-        this.inventory.add('long-sword');
-      } else if (this.floorNumber === 14 && rank === 'normal') {
-        this.inventory.add('expert-longbow');
       } else if (this.floorNumber === 15 && rank === 'mini-boss') {
         this.inventory.add('double-axe');
         this.inventory.add('iron-shield');
         this.inventory.add('iron-helmet');
-      } else if (this.floorNumber === 16 && rank === 'normal') {
-        this.inventory.add('vitality-tome');
-      } else if (this.floorNumber === 18 && rank === 'normal') {
-        this.inventory.add('superior-consecrated-staff');
       } else if (this.floorNumber === 20 && rank === 'boss') {
-        this.inventory.add('seventh-fang');
         this.inventory.add('winter-cloak');
+        this.inventory.add('seventh-fang');
         this.inventory.add('seventh-edge');
         this.inventory.add('wooden-buckler');
         this.inventory.add('traveler-pants');
