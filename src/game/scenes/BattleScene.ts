@@ -713,6 +713,11 @@ export class BattleScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0);
 
+    // Painel escuro atrás das recompensas para separar o texto do cenário.
+    const rewardBackdrop = this.add
+      .rectangle(0, 91, BOARD_WIDTH - 64, 58, 0x020617, 0.94)
+      .setStrokeStyle(1, 0xfacc15, 0.45);
+
     this.outcomeReward = this.add
       .text(0, 75, '', {
         fontFamily: 'system-ui, sans-serif',
@@ -720,13 +725,14 @@ export class BattleScene extends Phaser.Scene {
         fontStyle: 'bold',
         color: '#fde68a',
         align: 'center',
-        wordWrap: { width: BOARD_WIDTH - 40 },
+        wordWrap: { width: BOARD_WIDTH - 64 },
         resolution: 2,
+        shadow: { offsetX: 0, offsetY: 1, color: '#000000', blur: 5, fill: true },
       })
       .setOrigin(0.5, 0);
 
     this.outcomeOverlay = this.add
-      .container(GAME_WIDTH / 2, GAME_HEIGHT / 2, [background, this.outcomeTitle, this.outcomeSubtitle, this.outcomeReward])
+      .container(GAME_WIDTH / 2, GAME_HEIGHT / 2, [background, this.outcomeTitle, this.outcomeSubtitle, rewardBackdrop, this.outcomeReward])
       .setDepth(10)
       .setVisible(false);
   }
