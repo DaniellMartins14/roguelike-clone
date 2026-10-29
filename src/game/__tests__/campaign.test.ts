@@ -3,6 +3,7 @@ import { Campaign } from '../core/Campaign';
 import { findAttackTargets } from '../core/combat';
 import { HERO_FORMATION } from '../data/battleSetup';
 import { CAMPAIGN_FLOORS } from '../data/encounters';
+import { ITEM_DEFINITIONS } from '../data/items';
 import { GOBLIN } from '../data/monsters';
 import type { Position, Unit } from '../types';
 import { castAbility } from './helpers';
@@ -236,13 +237,18 @@ describe('Reinício da campanha', () => {
 });
 
 describe('Persistência dos itens da expedição', () => {
-  it('perde os itens não extraídos quando toda a equipe morre', () => {
+  it('perde os itens não equipados da incursão, mas mantém o equipamento vestido ao morrer', () => {
     const campaign = new Campaign();
-    const temporary = campaign.inventory.add('short-sword');
+    const warrior = heroNamed(campaign, 'warrior');
+    const equipped = campaign.inventory.add('short-sword');
+    const temporary = campaign.inventory.add('axe');
+    expect(campaign.inventory.equip(warrior, equipped.instanceId, ITEM_DEFINITIONS)).toBe(true);
 
     loseFloor(campaign);
 
     expect(campaign.status).toBe('defeated');
+    expect(campaign.inventory.instanceIds).toContain(equipped.instanceId);
+    expect(warrior.equipment?.mainHand).toBe(equipped.instanceId);
     expect(campaign.inventory.instanceIds).not.toContain(temporary.instanceId);
   });
 
