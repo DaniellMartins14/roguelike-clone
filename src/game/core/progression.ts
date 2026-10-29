@@ -73,6 +73,8 @@ export class PlayerInventory {
     const item = this.itemsByInstance.get(instanceId)!;
     const definition = definitions[item.definitionId];
     if (!definition || hero.progression.level < (definition.minLevel ?? 1)) return false;
+    if (definition.allowedClasses && !definition.allowedClasses.includes(hero.definition.id as 'warrior' | 'assassin' | 'mage' | 'cleric' | 'archer')) return false;
+    if (definition.slot === 'off-hand' && hero.definition.id === 'archer') return false;
     hero.equipment ??= {};
     const oldId = hero.equipment[definition.slot];
     if (oldId) {
@@ -97,6 +99,15 @@ export class PlayerInventory {
     return true;
   }
   definitionOf(instanceId: string): string | null { return this.itemsByInstance.get(instanceId)?.definitionId ?? null; }
+  sell(instanceId: string, definitions: Readonly<Record<string, ItemDefinition>> = ITEM_DEFINITIONS): number {
+    if (!this.available.has(instanceId)) return 0;
+    const item = this.itemsByInstance.get(instanceId);
+    const definition = item ? definitions[item.definitionId] : undefined;
+    if (!item || !definition) return 0;
+    this.available.delete(instanceId);
+    this.itemsByInstance.delete(instanceId);
+    return definition.sellPrice;
+  }
 }
 
 function applyEquipmentBonuses(hero: Unit, item: ItemDefinition, direction: 1 | -1): void {
