@@ -229,7 +229,7 @@ export class BattleScene extends Phaser.Scene {
           ? ((col + row) % 2 === 0 ? 0x171717 : 0x7f1d1d)
           : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
 
-        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color, this.campaign.floorNumber >= 1 && this.campaign.floorNumber <= 20 ? 0.48 : 1);
+        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color, 0.48);
         this.boardTiles.push({ tile, col, row });
         tile.setStrokeStyle(1, COLORS.tileBorder);
         tile.setInteractive({ useHandCursor: true });
@@ -267,12 +267,13 @@ export class BattleScene extends Phaser.Scene {
       this.boardBackground = null;
     }
     if (!texture) return;
+    // O fundo cobre toda a área do jogo; o tabuleiro fica em uma camada superior.
     this.boardBackground = this.add.image(
-      BOARD_MARGIN + BOARD_WIDTH / 2,
-      BOARD_MARGIN + BOARD_HEIGHT / 2,
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2,
       texture,
     );
-    this.boardBackground.setDisplaySize(BOARD_WIDTH, BOARD_HEIGHT);
+    this.boardBackground.setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
     this.boardBackground.setDepth(-1);
   }
 
@@ -282,7 +283,7 @@ export class BattleScene extends Phaser.Scene {
       const color = regionTwo
         ? ((col + row) % 2 === 0 ? 0x090909 : 0x8b0000)
         : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
-      tile.setFillStyle(color, this.campaign.floorNumber >= 1 && this.campaign.floorNumber <= 20 ? 0.48 : 1);
+      tile.setFillStyle(color, 0.48);
     }
   }
 
