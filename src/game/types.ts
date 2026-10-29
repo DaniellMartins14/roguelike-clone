@@ -276,13 +276,17 @@ export interface HeroProgression {
   unspentAttributePoints: number;
   attributes: { strength: number; vitality: number; defense: number };
 }
-export type EquipmentSlot = 'right-glove' | 'left-glove' | 'boots' | 'chest' | 'helmet' | 'pants' | 'weapon' | 'off-hand';
+export type EquipmentSlot = 'chest' | 'boots' | 'helmet' | 'amulet' | 'weapon' | 'off-hand' | 'ring';
 export interface ItemDefinition {
   readonly id: string;
   readonly name: string;
   readonly slot: EquipmentSlot;
   readonly minLevel?: number;
+  readonly allowedClasses?: readonly ('warrior' | 'assassin' | 'mage' | 'cleric' | 'archer')[];
+  readonly sellPrice: number;
   readonly bonuses: Partial<{ strength: number; vitality: number; defense: number }>;
+  readonly defensePercent?: number;
+  readonly lifestealPercent?: number;
 }
 export interface InventoryItem {
   readonly instanceId: string;
