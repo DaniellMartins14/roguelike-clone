@@ -5,6 +5,7 @@ import type { EncounterType, Position, Unit } from '../types';
 import { buildEncounter, createParty, prepareParty, validateFloor } from './encounter';
 import { GameState } from './GameState';
 import { PlayerInventory } from './progression';
+import { ITEM_DEFINITIONS } from '../data/items';
 
 /**
  * Situação da campanha:
@@ -34,6 +35,10 @@ export class Campaign {
   private activePartyUids: string[] = [];
   private expeditionItemsLost = false;
   private readonly rewardedMonsterUids = new Set<string>();
+  private readonly rewardMessages: string[] = [];
+
+  /** Recompensas obtidas no andar atual, exibidas ao vencer. */
+  get victoryRewards(): readonly string[] { return this.rewardMessages; }
   /** Ouro permanente do jogador, preservado entre incursões e derrotas. */
   gold = 0;
   /** Inventário compartilhado do jogador; os equipamentos são referências nos heróis. */
@@ -149,6 +154,7 @@ export class Campaign {
 
     this.floorIndex += 1;
     this.rewardedMonsterUids.clear();
+    this.rewardMessages.length = 0;
     prepareParty(this.activeParty);
     this.battle.loadEncounter(this.createEncounter());
     return true;
@@ -179,7 +185,7 @@ export class Campaign {
       const rank = monster.definition.rank ?? 'normal';
       const reward = rank === 'boss' ? 100 : rank === 'mini-boss' ? 35 : 5;
       this.gold += reward;
-
+      const drops: string[] = [];
       const roll = Math.random();
       // Armas de classe: chance comum de drop, com pool específico por faixa.
       const tierOneWeapons: Record<string, string[]> = {
@@ -195,39 +201,56 @@ export class Campaign {
       if (rank === 'normal' && this.floorNumber >= 1 && this.floorNumber <= 9 && roll < 0.30) {
         const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierOneWeapons);
         const pool = classes.flatMap((id) => tierOneWeapons[id] ?? []);
-        this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
+        const item = this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
+        drops.push(ITEM_DEFINITIONS[item.definitionId]?.name ?? item.definitionId);
       } else if (rank === 'normal' && this.floorNumber >= 11 && this.floorNumber <= 19 && roll < 0.35) {
         const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierTwoWeapons);
         const pool = classes.flatMap((id) => tierTwoWeapons[id] ?? []);
-        this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
+        const item = this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
+        drops.push(ITEM_DEFINITIONS[item.definitionId]?.name ?? item.definitionId);
       }
 
       // Drops raros: amuletos com chance menor; chefes têm chances maiores.
       if (this.floorNumber === 5 && rank === 'mini-boss' && Math.random() < 0.10) {
         this.inventory.add('shadow-claw');
+        drops.push('Garra do Sombrio');
       } else if (this.floorNumber === 10 && rank === 'boss' && Math.random() < 0.20) {
         this.inventory.add('cthulhu-tentacle');
+        drops.push('Tentáculo de Cthulhu');
       } else if (this.floorNumber === 15 && rank === 'mini-boss' && Math.random() < 0.15) {
         this.inventory.add('winter-cloak');
+        drops.push('Capa do Inverno');
       } else if (this.floorNumber === 20 && rank === 'boss' && Math.random() < 0.25) {
         this.inventory.add('seventh-fang');
+        drops.push('Dente do Sétimo');
       }
 
       // Recompensas garantidas de marcos da campanha.
       if (this.floorNumber === 5 && rank === 'mini-boss') {
         this.inventory.add('leather-boots');
+        drops.push('Botas de Couro');
       } else if (this.floorNumber === 10 && rank === 'boss') {
         this.inventory.add('padded-chest');
+        drops.push('Peitoral Acolchoado');
         this.inventory.add('rusty-sword');
+        drops.push('Espada Enferrujada');
       } else if (this.floorNumber === 15 && rank === 'mini-boss') {
         this.inventory.add('double-axe');
+        drops.push('Machado duplo');
         this.inventory.add('iron-shield');
+        drops.push('Escudo de ferro');
         this.inventory.add('iron-helmet');
+        drops.push('Capacete de Ferro');
       } else if (this.floorNumber === 20 && rank === 'boss') {
         this.inventory.add('seventh-edge');
+        drops.push('Lâmina do Sétimo');
         this.inventory.add('wooden-buckler');
+        drops.push('Broquel de Madeira');
         this.inventory.add('traveler-pants');
+        drops.push('Calça de Viajante');
       }
+
+      this.rewardMessages.push(drops.length ? `${reward} moedas de ouro + ${drops.join(', ')}` : `${reward} moedas de ouro`);
     }
   }
 
