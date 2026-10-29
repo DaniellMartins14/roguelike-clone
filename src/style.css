@@ -1179,3 +1179,30 @@ button.unit-card:disabled:hover {
     overflow: visible;
   }
 }
+
+
+/* Telas de preparação precisam rolar; somente o combate fica preso à viewport. */
+@media (max-width: 900px) {
+  html:has(.preparation-screen),
+  body:has(.preparation-screen) {
+    height: auto;
+    min-height: 100%;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  #app:has(.preparation-screen),
+  #panel:has(.preparation-screen) {
+    height: auto;
+    min-height: 100dvh;
+    max-height: none;
+    overflow: visible;
+  }
+  .preparation-screen {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
+.inventory-window-content { margin: 0 !important; }
+.inventory-window-content .inventory-window-content { max-width: 100%; }
