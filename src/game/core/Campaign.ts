@@ -185,9 +185,17 @@ export class Campaign {
       } else if (this.floorNumber === 10 && rank === 'boss') {
         this.inventory.add('padded-chest');
         this.inventory.add('rusty-sword');
+      } else if (this.floorNumber === 12 && rank === 'normal') {
+        this.inventory.add('nightfang-dagger');
+      } else if (this.floorNumber === 14 && rank === 'normal') {
+        this.inventory.add('bloodsteel-sword');
       } else if (this.floorNumber === 15 && rank === 'mini-boss') {
+        this.inventory.add('mooncleaver');
         this.inventory.add('iron-helmet');
+      } else if (this.floorNumber === 18 && rank === 'normal') {
+        this.inventory.add('mooncleaver');
       } else if (this.floorNumber === 20 && rank === 'boss') {
+        this.inventory.add('seventh-edge');
         this.inventory.add('wooden-buckler');
         this.inventory.add('traveler-pants');
       }
