@@ -33,7 +33,6 @@ export class Campaign {
   private floorIndex = 0;
   private partyUnits: Unit[];
   private activePartyUids: string[] = [];
-  private expeditionItemsLost = false;
   private readonly rewardedMonsterUids = new Set<string>();
   private readonly rewardMessages: string[] = [];
   private rewardGold = 0;
@@ -179,7 +178,7 @@ export class Campaign {
 
   /** Derrotas não removem equipamento permanente nem o ouro acumulado. */
   loseExpeditionItems(): void {
-    this.expeditionItemsLost = false;
+    // Equipamentos e ouro são permanentes; não há itens iniciais para repor após derrota.
   }
 
   private collectMonsterRewards(): void {
