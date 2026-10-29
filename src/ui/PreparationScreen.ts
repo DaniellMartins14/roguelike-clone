@@ -206,17 +206,30 @@ export class PreparationScreen {
     for (const item of this.campaign.inventory.items) {
       const def = ITEM_DEFINITIONS[item.definitionId];
       if (!def) continue;
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:6px;align-items:stretch;';
       const button = document.createElement('button');
       button.type = 'button';
       const bonus = Object.entries(def.bonuses).map(([key, amount]) => `${key === 'strength' ? 'Força' : key === 'vitality' ? 'Vitalidade' : 'Defesa'} +${amount}`).join(' · ');
-      button.textContent = `${def.name} · ${SLOTS.find((s) => s.id === def.slot)?.label ?? def.slot} · ${bonus || 'Sem bônus'}`;
-      button.style.cssText = STYLE.button + 'text-align:left;font-size:.8rem;';
-      button.disabled = this.selectedHero.hp <= 0 || (this.selectedHero.progression?.level ?? 1) < (def.minLevel ?? 1);
+      const special = def.defensePercent ? `Defesa +${def.defensePercent}%` : def.lifestealPercent ? `Vampirismo ${def.lifestealPercent}%` : '';
+      button.textContent = `${def.name} · ${SLOTS.find((s) => s.id === def.slot)?.label ?? def.slot} · ${[bonus, special].filter(Boolean).join(' · ') || 'Sem bônus'}`;
+      button.style.cssText = STYLE.button + 'text-align:left;font-size:.8rem;flex:1;';
+      button.disabled = this.selectedHero.hp <= 0 || (this.selectedHero.progression?.level ?? 1) < (def.minLevel ?? 1) || (!!def.allowedClasses && !def.allowedClasses.includes(this.selectedHero.definition.id as 'warrior' | 'assassin' | 'mage' | 'cleric' | 'archer'));
       button.addEventListener('click', () => {
         if (this.campaign.inventory.equip(this.selectedHero, item.instanceId, ITEM_DEFINITIONS)) this.render();
         else { this.message = 'Não foi possível equipar esse item.'; this.render(); }
       });
-      items.append(button);
+      const sell = document.createElement('button');
+      sell.type = 'button';
+      sell.textContent = `Vender drop · ${def.sellPrice} ouro`;
+      sell.style.cssText = STYLE.button + 'font-size:.75rem;white-space:nowrap;background:#7f1d1d;';
+      sell.addEventListener('click', () => {
+        const value = this.campaign.sellInventoryItem(item.instanceId);
+        this.message = value > 0 ? `${def.name} vendido por ${value} ouro.` : 'Não foi possível vender esse item.';
+        this.render();
+      });
+      row.append(button, sell);
+      items.append(row);
     }
     equipmentCard.append(equipmentTitle, slots, inventoryTitle, items);
     right.append(equipmentCard);
