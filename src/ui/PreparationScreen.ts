@@ -172,6 +172,7 @@ export class PreparationScreen {
     right.append(boardCard);
 
     const equipmentCard = document.createElement('section');
+    equipmentCard.className = 'inventory-window-content';
     equipmentCard.style.cssText = STYLE.card;
     const equipmentTitle = document.createElement('h2');
     equipmentTitle.textContent = `Equipamentos · ${this.selectedHero.definition.name}`;
@@ -232,7 +233,33 @@ export class PreparationScreen {
       items.append(row);
     }
     equipmentCard.append(equipmentTitle, slots, inventoryTitle, items);
-    right.append(equipmentCard);
+
+    const inventoryButton = document.createElement('button');
+    inventoryButton.type = 'button';
+    inventoryButton.textContent = 'Inventário e equipamentos';
+    inventoryButton.style.cssText = 'width:100%;padding:13px;border:1px solid #8b5cf6;border-radius:8px;background:#2b2341;color:#f5f3ff;font-weight:800;cursor:pointer;';
+    const inventoryWindow = document.createElement('div');
+    inventoryWindow.className = 'inventory-window';
+    inventoryWindow.style.cssText = 'position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.78);backdrop-filter:blur(5px);';
+    const inventoryDialog = document.createElement('div');
+    inventoryDialog.style.cssText = 'width:min(760px,100%);max-height:90dvh;overflow:auto;background:#0f172a;border:1px solid #8b5cf6;padding:12px;box-shadow:0 20px 70px #000a;';
+    const inventoryHeader = document.createElement('div');
+    inventoryHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;';
+    const inventoryWindowTitle = document.createElement('strong');
+    inventoryWindowTitle.textContent = 'Inventário do personagem';
+    const closeInventory = document.createElement('button');
+    closeInventory.type = 'button';
+    closeInventory.textContent = 'Fechar ✕';
+    closeInventory.style.cssText = STYLE.button;
+    const closeWindow = () => { inventoryWindow.style.display = 'none'; };
+    closeInventory.addEventListener('click', closeWindow);
+    inventoryWindow.addEventListener('click', (event) => { if (event.target === inventoryWindow) closeWindow(); });
+    inventoryHeader.append(inventoryWindowTitle, closeInventory);
+    inventoryDialog.append(inventoryHeader, equipmentCard);
+    inventoryWindow.append(inventoryDialog);
+    inventoryButton.addEventListener('click', () => { inventoryWindow.style.display = 'flex'; });
+    right.append(inventoryButton);
+    page.append(inventoryWindow);
     columns.append(left, right);
     page.append(columns);
 
