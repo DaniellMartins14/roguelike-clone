@@ -65,7 +65,10 @@ export class Campaign {
     this.retainedItemIds = new Set(this.inventory.instanceIds);
     this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
     this.battle = new GameState(() => this.createEncounter(), (hero) => this.inventory.specialBonusesFor(hero));
-    this.battle.subscribe(() => this.collectMonsterRewards());
+    this.battle.subscribe(() => {
+      this.collectMonsterRewards();
+      if (this.battle.outcome === 'defeat') this.loseExpeditionItems();
+    });
   }
 
   // ---------- Consultas ----------
