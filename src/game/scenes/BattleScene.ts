@@ -265,23 +265,24 @@ export class BattleScene extends Phaser.Scene {
   private refreshBoardBackground(): void {
     const floor = this.campaign.floorNumber;
     const filename = floor >= 1 && floor <= 10 ? 'faixa-1' : floor >= 11 && floor <= 20 ? 'faixa-2' : null;
-    const texture = filename && this.textures.exists(`background-${filename}`) ? `background-${filename}` : null;
     if (this.boardBackground) {
       this.boardBackground.destroy();
       this.boardBackground = null;
     }
-    if (!texture) return;
-    // O fundo cobre toda a área do jogo; o tabuleiro fica em uma camada superior.
-    this.boardBackground = this.add.image(
-      GAME_WIDTH / 2,
-      GAME_HEIGHT / 2,
-      texture,
-    );
-    // "Cover": preserva a proporção da arte e recorta o excedente, sem deformar.
-    const source = this.textures.get(texture).getSourceImage() as HTMLImageElement;
-    const scale = Math.max(GAME_WIDTH / source.width, GAME_HEIGHT / source.height);
-    this.boardBackground.setScale(scale);
-    this.boardBackground.setDepth(-1);
+
+    // O fundo é aplicado ao contêiner HTML do jogo, não ao canvas quadrado.
+    // Assim também cobre as laterais externas do tabuleiro marcadas no print.
+    const parent = this.game.canvas.parentElement as HTMLElement | null;
+    if (!parent) return;
+    const entry = filename
+      ? Object.entries(optionalRegionBackgrounds).find(([path]) =>
+          path.split('/').pop()?.replace(/\.(png|jpe?g|jfif)$/i, '').toLowerCase() === filename,
+        )
+      : undefined;
+    parent.style.backgroundImage = entry ? `url("${entry[1]}")` : 'none';
+    parent.style.backgroundPosition = 'center';
+    parent.style.backgroundRepeat = 'no-repeat';
+    parent.style.backgroundSize = 'cover';
   }
 
   private refreshBoardPalette(): void {
