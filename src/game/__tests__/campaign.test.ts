@@ -235,6 +235,35 @@ describe('Reinício da campanha', () => {
   });
 });
 
+describe('Persistência dos itens da expedição', () => {
+  it('perde os itens não extraídos quando toda a equipe morre', () => {
+    const campaign = new Campaign();
+    const temporary = campaign.inventory.add('short-sword');
+
+    loseFloor(campaign);
+
+    expect(campaign.status).toBe('defeated');
+    expect(campaign.inventory.instanceIds).not.toContain(temporary.instanceId);
+  });
+
+  it('preserva itens consolidados por extração e remove apenas os drops da incursão seguinte', () => {
+    const campaign = new Campaign();
+    goToFloor(campaign, 5);
+    const extractedItem = campaign.inventory.add('short-sword');
+    winFloor(campaign);
+
+    expect(campaign.extract()).toBe(true);
+    expect(campaign.inventory.instanceIds).toContain(extractedItem.instanceId);
+
+    const temporaryItem = campaign.inventory.add('axe');
+    loseFloor(campaign);
+
+    expect(campaign.status).toBe('defeated');
+    expect(campaign.inventory.instanceIds).toContain(extractedItem.instanceId);
+    expect(campaign.inventory.instanceIds).not.toContain(temporaryItem.instanceId);
+  });
+});
+
 describe('Novo encontro', () => {
   it('limpa o encontro anterior e cria monstros novos com PV cheio', () => {
     const campaign = new Campaign();
