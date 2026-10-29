@@ -8,7 +8,7 @@ const optionalMonsterSprites = import.meta.glob('../../assets/sprites/*.png', {
 }) as Record<string, string>;
 
 // Fundos opcionais por faixa: colocar faixa-1.png e faixa-2.png em assets/backgrounds.
-const optionalRegionBackgrounds = import.meta.glob('../../assets/backgrounds/*.png', {
+const optionalRegionBackgrounds = import.meta.glob('../../assets/backgrounds/*.{png,jpg,jpeg,jfif}', {
   eager: true,
   query: '?url',
   import: 'default',
@@ -158,8 +158,10 @@ export class BattleScene extends Phaser.Scene {
       if (filename) this.load.image(`monster-${filename}`, url);
     }
     for (const [path, url] of Object.entries(optionalRegionBackgrounds)) {
-      const filename = path.split('/').pop()?.replace(/\.png$/i, '');
-      if (filename === 'faixa-1' || filename === 'faixa-2') this.load.image(`background-${filename}`, url);
+      const filename = path.split('/').pop()?.replace(/\.(png|jpe?g|jfif)$/i, '').toLowerCase();
+      if (filename === 'faixa-1' || filename === 'faixa-2') {
+        this.load.image(`background-${filename}`, url);
+      }
     }
   }
 
