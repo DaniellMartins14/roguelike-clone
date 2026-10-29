@@ -12,7 +12,6 @@ import type { AttackContext } from './combat';
 import { isAlive } from './combat';
 export const ABILITY_BALANCE = {
   ambushAttacks: 2,
-  fireballDamage: 7,
   exuraHealRatio: 0.65,
 } as const;
 
@@ -40,7 +39,7 @@ export const PIERCING_SHOT: AbilityDefinition = {
 export const FIREBALL: AbilityDefinition = {
   id: 'fireball',
   name: 'Bola de Fogo',
-  description: 'Causa dano em uma área de 3×3 casas.',
+  description: 'Causa dano igual ao dano atual do Mago em uma área de 3×3 casas.',
   target: 'cell',
 };
 
