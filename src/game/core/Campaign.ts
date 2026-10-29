@@ -38,6 +38,8 @@ export class Campaign {
   private rewardGold = 0;
   private readonly rewardDrops: string[] = [];
   private normalItemDroppedThisFloor = false;
+  /** Itens já consolidados em extrações anteriores; os novos são temporários até extrair. */
+  private retainedItemIds = new Set<string>();
 
   /** Recompensas obtidas no andar atual, exibidas ao vencer. */
   get victoryRewards(): readonly string[] { return this.rewardMessages; }
@@ -60,6 +62,7 @@ export class Campaign {
 
     this.floors = floors;
     this.partyUnits = createParty();
+    this.retainedItemIds = new Set(this.inventory.instanceIds);
     this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
     this.battle = new GameState(() => this.createEncounter(), (hero) => this.inventory.specialBonusesFor(hero));
     this.battle.subscribe(() => this.collectMonsterRewards());
@@ -169,16 +172,17 @@ export class Campaign {
     return (this.status === 'floor-cleared' || this.status === 'completed') && this.floorNumber % 5 === 0;
   }
 
-  /** Saque e ouro ficam permanentes; a interface retorna à base e reinicia a incursão. */
+  /** Consolida os itens obtidos e retorna à base ao extrair em um marco válido. */
   extract(): boolean {
     if (!this.canExtract) return false;
+    this.retainedItemIds = new Set(this.inventory.instanceIds);
     this.restart(false);
     return true;
   }
 
-  /** Derrotas não removem equipamento permanente nem o ouro acumulado. */
+  /** Descarta os itens obtidos nesta incursão, inclusive os que foram equipados temporariamente. */
   loseExpeditionItems(): void {
-    // Equipamentos e ouro são permanentes; não há itens iniciais para repor após derrota.
+    this.inventory.removeItemsExcept(this.retainedItemIds, this.partyUnits);
   }
 
   private collectMonsterRewards(): void {
@@ -276,6 +280,8 @@ export class Campaign {
 
   /** Reinicia uma expedição no andar 1 sem apagar níveis, XP ou atributos permanentes. */
   restart(notify = true): void {
+    // Reiniciar sem extrair equivale a abandonar a incursão: drops recentes são perdidos.
+    this.loseExpeditionItems();
     this.floorIndex = 0;
     this.rewardedMonsterUids.clear();
     this.rewardMessages.length = 0;
@@ -291,6 +297,7 @@ export class Campaign {
 
     if (this.activePartyUids.length === 0) this.activePartyUids = this.partyUnits.slice(0, 3).map((hero) => hero.uid);
     this.battle.reset(notify);
+    this.retainedItemIds = new Set(this.inventory.instanceIds);
   }
 
   // ---------- Internos ----------
