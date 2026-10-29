@@ -199,7 +199,10 @@ export class BattleScene extends Phaser.Scene {
       for (let col = 0; col < BOARD_COLS; col++) {
         const cell: Position = { col, row };
         const { x, y } = cellToPixel(cell);
-        const color = (col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark;
+        const regionTwo = this.campaign.currentFloor >= 11 && this.campaign.currentFloor <= 20;
+        const color = regionTwo
+          ? ((col + row) % 2 === 0 ? 0x171717 : 0x7f1d1d)
+          : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
 
         const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color);
         tile.setStrokeStyle(1, COLORS.tileBorder);
@@ -407,6 +410,13 @@ export class BattleScene extends Phaser.Scene {
         'scaled-guardian': 'monster-scaled-guardian',
         'rlyeh-horror': 'monster-rlyeh-horror',
         'abyss-idol': 'monster-abyss-idol',
+        'vampiric-thrall': 'monster-vampiric-thrall',
+        'blood-bat': 'monster-blood-bat',
+        'night-hunter': 'monster-night-hunter',
+        'blood-knight': 'monster-blood-knight',
+        werewolf: 'monster-werewolf',
+        winter: 'monster-inverno',
+        'the-seventh': 'monster-o-setimo',
       };
       const texture = monsterTextures[def.id];
       if (texture && this.textures.exists(texture)) {
