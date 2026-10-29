@@ -1019,3 +1019,163 @@ button.unit-card:disabled:hover {
   min-height: 100dvh !important;
   margin: 0 !important;
 }
+
+
+/* Mobile: combate inteiro em uma única tela, sem rolagem da página. */
+@media (max-width: 560px) {
+  html, body, #app {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  #app:not(:has(.preparation-screen)) {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    max-height: 100dvh;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  #app:not(:has(.preparation-screen)) #game-container {
+    order: 0;
+    flex: 0 0 min(45dvh, 100vw);
+    width: 100%;
+    height: min(45dvh, 100vw);
+    min-height: 0;
+    max-height: min(45dvh, 100vw);
+    overflow: hidden;
+  }
+
+  #app:not(:has(.preparation-screen)) #panel {
+    order: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    align-items: stretch;
+    flex: 1 1 0;
+    width: 100%;
+    height: 0;
+    min-height: 0;
+    max-height: 55dvh;
+    padding: 4px;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail {
+    display: flex;
+    flex-direction: column;
+    grid-row: 1;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    padding: 4px;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail--left { grid-column: 1; }
+  #panel:not(:has(.preparation-screen)) .battle-rail--right { grid-column: 2; }
+  #panel:not(:has(.preparation-screen)) .battle-rail > * {
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail h2 {
+    font-size: .78rem;
+    line-height: 1.1;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .turn-box,
+  #panel:not(:has(.preparation-screen)) .battle-rail .campaign-box,
+  #panel:not(:has(.preparation-screen)) .battle-rail .ability-box,
+  #panel:not(:has(.preparation-screen)) .battle-rail .phase,
+  #panel:not(:has(.preparation-screen)) .battle-rail .mode,
+  #panel:not(:has(.preparation-screen)) .battle-rail .banner {
+    padding: 5px;
+    font-size: .68rem;
+    line-height: 1.15;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .unit-card {
+    padding: 3px 4px;
+    gap: 4px;
+    font-size: .68rem;
+    line-height: 1.1;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .unit-stats {
+    margin-top: 2px;
+    font-size: .62rem;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .badge {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail button {
+    min-height: 30px;
+    padding: 5px 4px;
+    font-size: .68rem;
+    line-height: 1.1;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .actions,
+  #panel:not(:has(.preparation-screen)) .battle-rail .ability-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .log-section {
+    display: none;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .ability-desc,
+  #panel:not(:has(.preparation-screen)) .battle-rail .ability-hint,
+  #panel:not(:has(.preparation-screen)) .battle-rail .telegraph-hint {
+    font-size: .65rem;
+    line-height: 1.15;
+    margin-bottom: 4px;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .floor-label {
+    font-size: .95rem;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .floor-name {
+    font-size: .65rem;
+  }
+
+  #panel:not(:has(.preparation-screen)) .battle-rail .notice {
+    padding: 4px;
+    margin-bottom: 4px;
+    font-size: .65rem;
+  }
+
+  /* A preparação continua rolável: é uma tela de gerenciamento, não de combate. */
+  #app:has(.preparation-screen) {
+    height: auto;
+    min-height: 100dvh;
+    max-height: none;
+    overflow: visible;
+  }
+  #panel:has(.preparation-screen) {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
