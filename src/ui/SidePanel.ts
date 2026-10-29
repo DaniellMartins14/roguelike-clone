@@ -203,9 +203,16 @@ export class SidePanel {
 
   private buildAttributesModal(): void {
     this.attributesModal.hidden = true;
-    this.attributesModal.style.cssText = 'position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.82);backdrop-filter:blur(5px);';
+    this.attributesModal.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.88);backdrop-filter:blur(5px);pointer-events:auto;touch-action:manipulation;';
+    // Bloqueia os eventos no overlay antes que cheguem ao canvas do Phaser.
+    for (const eventName of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'click', 'dblclick', 'contextmenu']) {
+      this.attributesModal.addEventListener(eventName, (event) => event.stopPropagation());
+    }
     const dialog = el('div', 'attributes-modal__dialog');
-    dialog.style.cssText = 'width:min(560px,100%);max-height:88dvh;overflow:auto;padding:12px;background:#0f172a;border:1px solid #8b5cf6;box-shadow:0 20px 70px #000a;';
+    dialog.style.cssText = 'position:relative;z-index:1;pointer-events:auto;touch-action:pan-y;width:min(560px,100%);max-height:88dvh;overflow:auto;padding:12px;background:#0f172a;border:1px solid #8b5cf6;box-shadow:0 20px 70px #000a;';
+    for (const eventName of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'click', 'dblclick', 'contextmenu']) {
+      dialog.addEventListener(eventName, (event) => event.stopPropagation());
+    }
     const header = el('div');
     header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;';
     header.append(el('strong', undefined, 'Atributos do personagem'));
@@ -427,7 +434,13 @@ export class SidePanel {
       add.setAttribute('aria-label', add.title);
       add.disabled = p.unspentAttributePoints < 1 || this.state.phase !== 'player' || selected.hp <= 0;
       add.style.cssText = 'min-width:34px;height:32px;border:1px solid #8b7be8;border-radius:4px;background:#342c57;color:#fff;font-weight:700;cursor:pointer;';
-      add.addEventListener('click', () => this.state.allocateSelectedAttribute(attribute.key));
+      add.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.state.allocateSelectedAttribute(attribute.key);
+        // Re-render explicitly so the point count and derived stats update immediately.
+        this.render();
+      });
       row.append(add);
       attributes.append(row);
     }
