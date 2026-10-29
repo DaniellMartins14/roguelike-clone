@@ -6,6 +6,13 @@ const optionalMonsterSprites = import.meta.glob('../../assets/sprites/*.png', {
   query: '?url',
   import: 'default',
 }) as Record<string, string>;
+
+// Fundos opcionais por faixa: colocar faixa-1.png e faixa-2.png em assets/backgrounds.
+const optionalRegionBackgrounds = import.meta.glob('../../assets/backgrounds/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
 import warriorSprite from '../../assets/sprites/warrior.png';
 import assassinSprite from '../../assets/sprites/assassin.png';
 import archerSprite from '../../assets/sprites/archer.png';
@@ -112,6 +119,7 @@ export class BattleScene extends Phaser.Scene {
   private readonly unitViews = new Map<string, UnitView>();
   private obstacleObjects: Phaser.GameObjects.Rectangle[] = [];
   private boardTiles: { tile: Phaser.GameObjects.Rectangle; col: number; row: number }[] = [];
+  private boardBackground: Phaser.GameObjects.Image | null = null;
   private overlay!: Phaser.GameObjects.Graphics;
   private outcomeOverlay!: Phaser.GameObjects.Container;
   private outcomeTitle!: Phaser.GameObjects.Text;
@@ -148,6 +156,10 @@ export class BattleScene extends Phaser.Scene {
     for (const [path, url] of Object.entries(optionalMonsterSprites)) {
       const filename = path.split('/').pop()?.replace(/\.png$/i, '');
       if (filename) this.load.image(`monster-${filename}`, url);
+    }
+    for (const [path, url] of Object.entries(optionalRegionBackgrounds)) {
+      const filename = path.split('/').pop()?.replace(/\.png$/i, '');
+      if (filename === 'faixa-1' || filename === 'faixa-2') this.load.image(`background-${filename}`, url);
     }
   }
 
@@ -191,6 +203,7 @@ export class BattleScene extends Phaser.Scene {
   // ---------- Tabuleiro ----------
 
   private drawBoard(): void {
+    this.refreshBoardBackground();
     // Moldura
     this.add.rectangle(
       BOARD_MARGIN + BOARD_WIDTH / 2,
@@ -216,7 +229,7 @@ export class BattleScene extends Phaser.Scene {
           ? ((col + row) % 2 === 0 ? 0x171717 : 0x7f1d1d)
           : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
 
-        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color);
+        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color, this.campaign.floorNumber >= 1 && this.campaign.floorNumber <= 20 ? 0.48 : 1);
         this.boardTiles.push({ tile, col, row });
         tile.setStrokeStyle(1, COLORS.tileBorder);
         tile.setInteractive({ useHandCursor: true });
@@ -245,13 +258,31 @@ export class BattleScene extends Phaser.Scene {
     }
   }
 
+  private refreshBoardBackground(): void {
+    const floor = this.campaign.floorNumber;
+    const filename = floor >= 1 && floor <= 10 ? 'faixa-1' : floor >= 11 && floor <= 20 ? 'faixa-2' : null;
+    const texture = filename && this.textures.exists(`background-${filename}`) ? `background-${filename}` : null;
+    if (this.boardBackground) {
+      this.boardBackground.destroy();
+      this.boardBackground = null;
+    }
+    if (!texture) return;
+    this.boardBackground = this.add.image(
+      BOARD_MARGIN + BOARD_WIDTH / 2,
+      BOARD_MARGIN + BOARD_HEIGHT / 2,
+      texture,
+    );
+    this.boardBackground.setDisplaySize(BOARD_WIDTH, BOARD_HEIGHT);
+    this.boardBackground.setDepth(-1);
+  }
+
   private refreshBoardPalette(): void {
     const regionTwo = this.campaign.floorNumber >= 11 && this.campaign.floorNumber <= 20;
     for (const { tile, col, row } of this.boardTiles) {
       const color = regionTwo
         ? ((col + row) % 2 === 0 ? 0x090909 : 0x8b0000)
         : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
-      tile.setFillStyle(color, 1);
+      tile.setFillStyle(color, this.campaign.floorNumber >= 1 && this.campaign.floorNumber <= 20 ? 0.48 : 1);
     }
   }
 
@@ -288,6 +319,7 @@ export class BattleScene extends Phaser.Scene {
 
     for (const obstacle of this.obstacleObjects) obstacle.destroy();
     this.obstacleObjects = [];
+    this.refreshBoardBackground();
     this.refreshBoardPalette();
 
     this.drawObstacles();
