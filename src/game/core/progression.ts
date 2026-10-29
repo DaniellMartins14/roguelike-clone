@@ -60,6 +60,24 @@ export class PlayerInventory {
   private readonly available = new Set<string>();
   private nextId = 1;
   get items(): readonly InventoryItem[] { return [...this.available].map((id) => this.itemsByInstance.get(id)!).filter(Boolean); }
+  /** IDs de todos os itens, inclusive os que estão equipados. */
+  get instanceIds(): readonly string[] { return [...this.itemsByInstance.keys()]; }
+  /**
+   * Remove itens adquiridos depois do marco de persistência, desfazendo bônus de qualquer
+   * equipamento temporário antes de apagar seus registros.
+   */
+  removeItemsExcept(keepIds: ReadonlySet<string>, heroes: readonly Unit[]): void {
+    for (const [instanceId] of this.itemsByInstance) {
+      if (keepIds.has(instanceId)) continue;
+      for (const hero of heroes) {
+        for (const [slot, equippedId] of Object.entries(hero.equipment ?? {}) as [EquipmentSlot, string][]) {
+          if (equippedId === instanceId) this.unequip(hero, slot);
+        }
+      }
+      this.available.delete(instanceId);
+      this.itemsByInstance.delete(instanceId);
+    }
+  }
   add(definitionId: string): InventoryItem {
     const item = { instanceId: `item-${this.nextId++}`, definitionId };
     this.itemsByInstance.set(item.instanceId, item);
