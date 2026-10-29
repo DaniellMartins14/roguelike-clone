@@ -378,8 +378,8 @@ export class GameState {
     if (attribute === 'strength') {
       hero.damage += 1;
     } else if (attribute === 'vitality') {
-      hero.maxHp += 10;
-      hero.hp = Math.min(hero.maxHp, hero.hp + 10);
+      hero.maxHp += 5;
+      hero.hp = Math.min(hero.maxHp, hero.hp + 5);
     }
     this.addLog(
       `${hero.definition.name} investiu 1 ponto em ${attribute === 'strength' ? 'Força' : attribute === 'vitality' ? 'Vitalidade' : 'Defesa'}.`,
