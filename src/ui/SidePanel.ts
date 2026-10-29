@@ -65,6 +65,11 @@ export class SidePanel {
   private readonly bannerEl = el('div', 'banner');
   private readonly statusEl = el('p', 'status');
   private readonly characterStatsBox = el('section', 'character-stats');
+  private readonly attributesButton = el('button', 'btn-open-attributes', 'Atributos');
+  private readonly attributesModal = el('div', 'attributes-modal');
+  private attributesOpen = false;
+  private readonly specialConfirmModal = el('div', 'special-confirm-modal');
+  private readonly specialConfirmText = el('p', 'special-confirm-text');
 
   // Habilidade do herói selecionado
   private readonly abilityBox = el('section', 'ability-box');
@@ -113,6 +118,8 @@ export class SidePanel {
     this.bannerEl.hidden = true;
     this.telegraphBox.hidden = true;
     this.buildAbilityBox();
+    this.buildAttributesModal();
+    this.buildSpecialConfirmModal();
 
     this.passButton.type = 'button';
     this.passButton.addEventListener('click', () => this.state.passTurn());
@@ -139,13 +146,20 @@ export class SidePanel {
       this.telegraphBox,
       this.bannerEl,
       this.statusEl,
-      this.characterStatsBox,
+      this.attributesButton,
       this.abilityBox,
       section('Monstros', this.monstersEl),
       section('Registro de combate', this.logEl, 'log-section'),
     );
 
-    root.replaceChildren(leftRail, rightRail);
+    root.replaceChildren(leftRail, rightRail, this.attributesModal, this.specialConfirmModal);
+
+    this.attributesButton.type = 'button';
+    this.attributesButton.addEventListener('click', () => {
+      this.attributesOpen = true;
+      this.attributesModal.hidden = false;
+      this.render();
+    });
 
     this.unsubscribe = this.state.subscribe(() => this.render());
     this.render();
@@ -168,7 +182,7 @@ export class SidePanel {
     head.append(this.abilityNameEl, this.abilityStatusEl);
 
     const buttons = el('div', 'ability-actions');
-    buttons.append(this.useButton, this.confirmButton, this.cancelButton);
+    buttons.append(this.useButton);
 
     this.abilityBox.append(
       el('h2', undefined, 'Habilidade especial'),
@@ -181,6 +195,37 @@ export class SidePanel {
     this.abilityBox.hidden = true;
   }
 
+  private buildAttributesModal(): void {
+    this.attributesModal.hidden = true;
+    this.attributesModal.style.cssText = 'position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.82);backdrop-filter:blur(5px);';
+    const dialog = el('div', 'attributes-modal__dialog');
+    dialog.style.cssText = 'width:min(560px,100%);max-height:88dvh;overflow:auto;padding:12px;background:#0f172a;border:1px solid #8b5cf6;box-shadow:0 20px 70px #000a;';
+    const header = el('div');
+    header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;';
+    header.append(el('strong', undefined, 'Atributos do personagem'));
+    const close = el('button', 'btn-close-attributes', 'Fechar ✕');
+    close.type = 'button';
+    close.addEventListener('click', () => { this.attributesOpen = false; this.attributesModal.hidden = true; this.attributesModal.style.display = 'none'; });
+    header.append(close);
+    this.characterStatsBox.style.cssText = 'padding:8px;margin:0;background:#20212b;border:0;color:#f3f0ff;';
+    dialog.append(header, this.characterStatsBox);
+    this.attributesModal.append(dialog);
+    this.attributesModal.addEventListener('click', (event) => { if (event.target === this.attributesModal) { this.attributesOpen = false; this.attributesModal.hidden = true; this.attributesModal.style.display = 'none'; } });
+  }
+
+  private buildSpecialConfirmModal(): void {
+    this.specialConfirmModal.hidden = true;
+    this.specialConfirmModal.style.cssText = 'position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:16px;pointer-events:none;';
+    const dialog = el('div', 'special-confirm-modal__dialog');
+    dialog.style.cssText = 'width:min(360px,92vw);padding:16px;text-align:center;background:rgba(10,15,28,.97);border:2px solid #a78bfa;box-shadow:0 12px 50px #000c;pointer-events:auto;';
+    dialog.append(el('h2', undefined, 'Confirmar ataque especial'), this.specialConfirmText);
+    const actions = el('div', 'ability-actions');
+    actions.style.cssText = 'display:flex;justify-content:center;gap:8px;';
+    this.confirmButton.textContent = 'Confirmar ataque';
+    actions.append(this.confirmButton, this.cancelButton);
+    dialog.append(actions);
+    this.specialConfirmModal.append(dialog);
+  }
   private render(): void {
     const phase = this.state.phase;
     const status = this.campaign.status;
@@ -312,6 +357,7 @@ export class SidePanel {
   private renderCharacterStats(selected: Unit | null): void {
     if (!selected || selected.definition.team !== 'hero' || !selected.progression) {
       this.characterStatsBox.hidden = true;
+      this.attributesButton.hidden = true;
       this.characterStatsBox.replaceChildren();
       return;
     }
@@ -380,9 +426,14 @@ export class SidePanel {
       attributes.append(row);
     }
 
+    this.attributesButton.hidden = false;
+    this.attributesButton.textContent = 'Atributos · ' + selected.definition.name;
+    this.attributesButton.style.cssText = 'width:100%;padding:9px;background:#342c57;border:1px solid #8b7be8;color:#fff;font-weight:800;cursor:pointer;';
     this.characterStatsBox.hidden = false;
     this.characterStatsBox.style.cssText = 'padding:12px;margin:8px 0;background:#20212b;border:1px solid #4b465e;border-radius:5px;color:#f3f0ff;';
     this.characterStatsBox.replaceChildren(header, xpRow, xpBar, remaining, stats, pointsTitle, attributes);
+    this.attributesModal.style.display = this.attributesOpen ? 'flex' : 'none';
+    this.attributesModal.hidden = !this.attributesOpen;
   }
 
   /** Mostra nome, descrição, disponibilidade e controles da habilidade do herói selecionado. */
@@ -390,6 +441,8 @@ export class SidePanel {
     const ability = selected?.definition.ability ?? null;
     if (!selected || !ability || !canAct) {
       this.abilityBox.hidden = true;
+      this.specialConfirmModal.hidden = true;
+      this.specialConfirmModal.style.display = 'none';
       return;
     }
 
@@ -408,9 +461,12 @@ export class SidePanel {
     this.confirmButton.hidden = targeting === null;
     this.confirmButton.disabled = !this.state.canConfirmAbility;
     this.cancelButton.hidden = targeting === null;
+    this.specialConfirmText.textContent = this.state.targetingHint;
+    this.specialConfirmModal.hidden = targeting === null;
+    this.specialConfirmModal.style.display = targeting === null ? 'none' : 'flex';
 
     if (targeting) {
-      this.abilityHintEl.textContent = this.state.targetingHint;
+      this.abilityHintEl.textContent = 'Escolha o alvo no tabuleiro e confirme aqui.';
     } else if (used) {
       this.abilityHintEl.textContent = 'Esta habilidade já foi usada neste combate.';
     } else {
