@@ -36,14 +36,14 @@ export const ABYSS_IDOL: UnitDefinition = {
 };
 
 export const CRIMSON_COUNTESS: UnitDefinition = {
-  id: 'crimson-countess', name: 'Condessa Carmesim', team: 'monster', symbol: '♕', color: 0xbe123c,
+  id: 'inverno', name: 'Inverno', team: 'monster', symbol: '♕', color: 0xbe123c,
   maxHp: 250, damage: 28, movement: 2,
   attack: { directions: 'orthogonal', range: 1 },
   rank: 'mini-boss', telegraph: CRIMSON_COUNTESS_TELEGRAPH,
 };
 
 export const DRACULA: UnitDefinition = {
-  id: 'dracula', name: 'Drácula, Senhor da Noite', team: 'monster', symbol: '♛', color: 0x7f1d1d,
+  id: 'the-seventh', name: 'O Sétimo', team: 'monster', symbol: '♛', color: 0x7f1d1d,
   maxHp: 960, damage: 36, movement: 2,
   attack: { directions: 'orthogonal', range: 1 },
   rank: 'boss', telegraph: DRACULA_TELEGRAPH,
