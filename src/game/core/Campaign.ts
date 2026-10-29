@@ -62,7 +62,6 @@ export class Campaign {
     this.floors = floors;
     this.partyUnits = createParty();
     this.activePartyUids = this.partyUnits.map((hero) => hero.uid);
-    this.addStarterEquipment();
     this.battle = new GameState(() => this.createEncounter(), (hero) => this.inventory.specialBonusesFor(hero));
     this.battle.subscribe(() => this.collectMonsterRewards());
   }
@@ -200,6 +199,7 @@ export class Campaign {
         mage: ['wand', 'staff', 'magic-tome'], cleric: ['glove', 'consecrated-staff', 'cleric-tome'],
         archer: ['shortbow', 'longbow'],
       };
+      const basicArmor = ['leather-boots', 'padded-chest', 'iron-helmet'];
       const tierTwoWeapons: Record<string, string[]> = {
         warrior: ['long-sword', 'double-axe', 'iron-shield'], assassin: ['sharp-knife', 'sharp-dagger', 'offhand-sharp-knife', 'offhand-sharp-dagger'],
         mage: ['magic-wand', 'magic-staff', 'damage-tome'], cleric: ['white-glove', 'superior-consecrated-staff', 'vitality-tome'],
@@ -207,15 +207,16 @@ export class Campaign {
       };
       if (!this.normalItemDroppedThisFloor && rank === 'normal' && this.floorNumber >= 1 && this.floorNumber <= 9 && roll < 0.10) {
         const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierOneWeapons);
-        const pool = classes.flatMap((id) => tierOneWeapons[id] ?? []);
+        const pool = [...classes.flatMap((id) => tierOneWeapons[id] ?? []), ...basicArmor];
         const item = this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
         drops.push(ITEM_DEFINITIONS[item.definitionId]?.name ?? item.definitionId);
         this.normalItemDroppedThisFloor = true;
       } else if (!this.normalItemDroppedThisFloor && rank === 'normal' && this.floorNumber >= 11 && this.floorNumber <= 19 && roll < 0.10) {
         const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierTwoWeapons);
-        const pool = classes.flatMap((id) => tierTwoWeapons[id] ?? []);
+        const pool = [...classes.flatMap((id) => tierTwoWeapons[id] ?? []), ...basicArmor];
         const item = this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
         drops.push(ITEM_DEFINITIONS[item.definitionId]?.name ?? item.definitionId);
+        this.normalItemDroppedThisFloor = true;
       }
 
       // Drops raros: amuletos com chance menor; chefes têm chances maiores.
@@ -282,30 +283,15 @@ export class Campaign {
     this.rewardGold = 0;
     this.rewardDrops.length = 0;
     this.normalItemDroppedThisFloor = false;
-    const restoreStarterEquipment = this.expeditionItemsLost;
-
     for (const hero of this.partyUnits) {
       hero.hp = hero.maxHp;
       hero.abilityUsed = false;
       hero.stunned = false;
     }
 
-    // Uma incursão concluída preserva inventário e equipamentos. Só repomos o kit inicial
-    // quando a incursão anterior terminou em derrota e os itens foram perdidos.
-    if (restoreStarterEquipment) {
-      this.inventory.clear();
-      this.addStarterEquipment();
-    }
-    this.expeditionItemsLost = false;
 
     if (this.activePartyUids.length === 0) this.activePartyUids = this.partyUnits.slice(0, 3).map((hero) => hero.uid);
     this.battle.reset(notify);
-  }
-
-  private addStarterEquipment(): void {
-    for (const id of ['worn-right-glove', 'worn-left-glove', 'leather-boots', 'padded-chest', 'iron-helmet', 'traveler-pants', 'rusty-sword', 'wooden-buckler']) {
-      this.inventory.add(id);
-    }
   }
 
   // ---------- Internos ----------
