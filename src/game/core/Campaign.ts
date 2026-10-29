@@ -180,21 +180,36 @@ export class Campaign {
       const reward = rank === 'boss' ? 100 : rank === 'mini-boss' ? 35 : 5;
       this.gold += reward;
 
-      if (this.floorNumber === 5 && rank === 'mini-boss') {
+      if (this.floorNumber === 2 && rank === 'normal') {
+        this.inventory.add('short-sword');
+      } else if (this.floorNumber === 3 && rank === 'normal') {
+        this.inventory.add('knife');
+      } else if (this.floorNumber === 4 && rank === 'normal') {
+        this.inventory.add('wand');
+      } else if (this.floorNumber === 5 && rank === 'mini-boss') {
         this.inventory.add('leather-boots');
       } else if (this.floorNumber === 10 && rank === 'boss') {
         this.inventory.add('padded-chest');
         this.inventory.add('rusty-sword');
+      } else if (this.floorNumber === 11 && rank === 'normal') {
+        this.inventory.add('sharp-knife');
       } else if (this.floorNumber === 12 && rank === 'normal') {
-        this.inventory.add('nightfang-dagger');
+        this.inventory.add('magic-wand');
+      } else if (this.floorNumber === 13 && rank === 'normal') {
+        this.inventory.add('long-sword');
       } else if (this.floorNumber === 14 && rank === 'normal') {
-        this.inventory.add('bloodsteel-sword');
+        this.inventory.add('expert-longbow');
       } else if (this.floorNumber === 15 && rank === 'mini-boss') {
-        this.inventory.add('mooncleaver');
+        this.inventory.add('double-axe');
+        this.inventory.add('iron-shield');
         this.inventory.add('iron-helmet');
+      } else if (this.floorNumber === 16 && rank === 'normal') {
+        this.inventory.add('vitality-tome');
       } else if (this.floorNumber === 18 && rank === 'normal') {
-        this.inventory.add('mooncleaver');
+        this.inventory.add('superior-consecrated-staff');
       } else if (this.floorNumber === 20 && rank === 'boss') {
+        this.inventory.add('seventh-fang');
+        this.inventory.add('winter-cloak');
         this.inventory.add('seventh-edge');
         this.inventory.add('wooden-buckler');
         this.inventory.add('traveler-pants');
