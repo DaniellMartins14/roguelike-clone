@@ -231,7 +231,7 @@ export class BattleScene extends Phaser.Scene {
           ? ((col + row) % 2 === 0 ? 0x171717 : 0x7f1d1d)
           : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
 
-        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color, 0.48);
+        const tile = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, color, 0.18);
         this.boardTiles.push({ tile, col, row });
         tile.setStrokeStyle(1, COLORS.tileBorder);
         tile.setInteractive({ useHandCursor: true });
@@ -275,7 +275,10 @@ export class BattleScene extends Phaser.Scene {
       GAME_HEIGHT / 2,
       texture,
     );
-    this.boardBackground.setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+    // "Cover": preserva a proporção da arte e recorta o excedente, sem deformar.
+    const source = this.textures.get(texture).getSourceImage() as HTMLImageElement;
+    const scale = Math.max(GAME_WIDTH / source.width, GAME_HEIGHT / source.height);
+    this.boardBackground.setScale(scale);
     this.boardBackground.setDepth(-1);
   }
 
@@ -285,7 +288,7 @@ export class BattleScene extends Phaser.Scene {
       const color = regionTwo
         ? ((col + row) % 2 === 0 ? 0x090909 : 0x8b0000)
         : ((col + row) % 2 === 0 ? COLORS.tileLight : COLORS.tileDark);
-      tile.setFillStyle(color, 0.48);
+      tile.setFillStyle(color, 0.18);
     }
   }
 
