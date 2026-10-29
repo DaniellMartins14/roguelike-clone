@@ -2,8 +2,8 @@ import type { EquipmentSlot, HeroProgression, InventoryItem, ItemDefinition, Uni
 import { ITEM_DEFINITIONS } from '../data/items';
 
 export const ATTRIBUTE_POINTS_PER_LEVEL = 3;
-export const BASE_XP_TO_NEXT_LEVEL = 50;
-export const XP_INCREASE_PER_LEVEL = 5;
+export const BASE_XP_TO_NEXT_LEVEL = 100;
+export const XP_INCREASE_PER_LEVEL = 0.02;
 export const CLASS_MULTIPLIERS: Record<string, { damage: number; hp: number; defense: number }> = {
   warrior: { damage: 1, hp: 1.5, defense: 1.4 },
   mage: { damage: 1.35, hp: 0.75, defense: 0.65 },
@@ -14,9 +14,10 @@ export const CLASS_MULTIPLIERS: Record<string, { damage: number; hp: number; def
 export function createHeroProgression(): HeroProgression {
   return { level: 1, xp: 0, unspentAttributePoints: 0, attributes: { strength: 0, vitality: 0, defense: 0 } };
 }
-/** XP exigido para avançar do nível atual; cresce 5 pontos a cada nível. */
+/** XP exigido para avançar do nível atual; começa em 100 e cresce 2% composto por nível. */
 export function xpRequiredForNextLevel(level: number): number {
-  return 2 * (BASE_XP_TO_NEXT_LEVEL + Math.max(0, level - 1) * XP_INCREASE_PER_LEVEL);
+  const safeLevel = Math.max(1, Math.floor(level));
+  return Math.round(BASE_XP_TO_NEXT_LEVEL * (1 + XP_INCREASE_PER_LEVEL) ** (safeLevel - 1));
 }
 
 /** Penalidade por morte: 10% da barra do nível atual, sem nunca remover níveis. */
