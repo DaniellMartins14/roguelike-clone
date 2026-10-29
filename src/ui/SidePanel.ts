@@ -175,6 +175,12 @@ export class SidePanel {
       button.type = 'button';
     }
     this.useButton.addEventListener('click', () => this.state.beginAbility());
+    // Evita que o clique nos controles DOM também seja interpretado como clique no tabuleiro Phaser.
+    for (const button of [this.confirmButton, this.cancelButton]) {
+      for (const eventName of ['pointerdown', 'mousedown', 'touchstart', 'click']) {
+        button.addEventListener(eventName, (event) => event.stopPropagation());
+      }
+    }
     this.confirmButton.addEventListener('click', () => this.state.confirmAbility());
     this.cancelButton.addEventListener('click', () => this.state.cancelAbility());
 
@@ -456,14 +462,16 @@ export class SidePanel {
     this.abilityDescEl.textContent = ability.description;
 
     // Escolhendo alvo: instrução do passo atual + Confirmar/Cancelar. Senão: botão "Usar".
+    const targetReady = targeting !== null && this.state.canConfirmAbility;
     this.useButton.hidden = targeting !== null;
     this.useButton.disabled = !this.state.canUseAbility(selected);
-    this.confirmButton.hidden = targeting === null;
-    this.confirmButton.disabled = !this.state.canConfirmAbility;
-    this.cancelButton.hidden = targeting === null;
+    this.confirmButton.hidden = !targetReady;
+    this.confirmButton.disabled = !targetReady;
+    this.cancelButton.hidden = !targetReady;
     this.specialConfirmText.textContent = this.state.targetingHint;
-    this.specialConfirmModal.hidden = targeting === null;
-    this.specialConfirmModal.style.display = targeting === null ? 'none' : 'flex';
+    // A janela só aparece depois que o jogador escolhe um alvo/área válida.
+    this.specialConfirmModal.hidden = !targetReady;
+    this.specialConfirmModal.style.display = targetReady ? 'flex' : 'none';
 
     if (targeting) {
       this.abilityHintEl.textContent = 'Escolha o alvo no tabuleiro e confirme aqui.';
