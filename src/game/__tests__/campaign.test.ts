@@ -251,7 +251,7 @@ describe('Persistência dos itens da expedição', () => {
 
     expect(campaign.status).toBe('defeated');
     expect(campaign.inventory.instanceIds).toContain(equipped.instanceId);
-    expect(warrior.equipment?.mainHand).toBe(equipped.instanceId);
+    expect(warrior.equipment?.weapon).toBe(equipped.instanceId);
     expect(campaign.inventory.instanceIds).not.toContain(temporary.instanceId);
   });
 
