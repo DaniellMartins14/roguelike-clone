@@ -237,7 +237,7 @@ describe('Tiro Perfurante (Arqueiro)', () => {
       ],
       [cell(2, 2)], // obstáculo no caminho: o projétil atravessa
     );
-    const damage = ABILITY_BALANCE.piercingShotDamage;
+    const damage = ARCHER.damage;
 
     expect(castAbility(state, find(state, 'archer'), [cell(5, 2)])).toBe(true);
 
@@ -259,7 +259,7 @@ describe('Tiro Perfurante (Arqueiro)', () => {
     for (const { aim, victim } of cases) {
       const state = stateWith(() => [unit(ARCHER, 2, 2), unit(GOBLIN, victim.col, victim.row), unit(SLIME, 5, 5)]);
       castAbility(state, find(state, 'archer'), [aim]);
-      expect(find(state, 'goblin').hp).toBe(GOBLIN.maxHp - ABILITY_BALANCE.piercingShotDamage);
+      expect(find(state, 'goblin').hp).toBe(GOBLIN.maxHp - ARCHER.damage);
       expect(find(state, 'slime').hp).toBe(SLIME.maxHp);
     }
   });
@@ -278,7 +278,7 @@ describe('Tiro Perfurante (Arqueiro)', () => {
 
     expect(find(state, 'goblin').hp).toBe(0);
     expect(find(state, 'warrior').hp).toBe(0);
-    expect(find(state, 'slime').hp).toBe(SLIME.maxHp - ABILITY_BALANCE.piercingShotDamage);
+    expect(find(state, 'slime').hp).toBe(SLIME.maxHp - ARCHER.damage);
     expect(state.monsters.map((m) => m.definition.id)).toEqual(['slime']);
     expect(state.log.filter((e) => e.message === 'Goblin foi derrotado!')).toHaveLength(1);
   });
