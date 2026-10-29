@@ -359,7 +359,7 @@ export class SidePanel {
     attributes.style.cssText = 'display:grid;gap:6px;';
     const attributeRows: Array<{ key: AttributeName; label: string; value: number; effect: string }> = [
       { key: 'strength', label: 'Força', value: p.attributes.strength, effect: '+1 dano por ponto' },
-      { key: 'vitality', label: 'Vitalidade', value: p.attributes.vitality, effect: '+10 PV máximos por ponto' },
+      { key: 'vitality', label: 'Vitalidade', value: p.attributes.vitality, effect: '+5 PV máximos por ponto' },
       { key: 'defense', label: 'Defesa', value: p.attributes.defense, effect: '−1 dano recebido por ponto (mín. 1)' },
     ];
     for (const attribute of attributeRows) {
