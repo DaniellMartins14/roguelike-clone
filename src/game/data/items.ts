@@ -9,4 +9,8 @@ export const ITEM_DEFINITIONS: Readonly<Record<string, ItemDefinition>> = {
   'traveler-pants': { id: 'traveler-pants', name: 'Calça de Viajante', slot: 'pants', minLevel: 1, bonuses: { vitality: 5 } },
   'rusty-sword': { id: 'rusty-sword', name: 'Espada Enferrujada', slot: 'weapon', minLevel: 1, bonuses: { strength: 3 } },
   'wooden-buckler': { id: 'wooden-buckler', name: 'Broquel de Madeira', slot: 'off-hand', minLevel: 1, bonuses: { defense: 2 } },
+  'bloodsteel-sword': { id: 'bloodsteel-sword', name: 'Espada de Aço Sanguíneo', slot: 'weapon', minLevel: 1, bonuses: { strength: 7 } },
+  'nightfang-dagger': { id: 'nightfang-dagger', name: 'Adaga Presa Noturna', slot: 'weapon', minLevel: 1, bonuses: { strength: 6 } },
+  'mooncleaver': { id: 'mooncleaver', name: 'Talhadora da Lua Rubra', slot: 'weapon', minLevel: 1, bonuses: { strength: 9 } },
+  'seventh-edge': { id: 'seventh-edge', name: 'Lâmina do Sétimo', slot: 'weapon', minLevel: 1, bonuses: { strength: 12 } },
 };
