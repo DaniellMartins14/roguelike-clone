@@ -193,10 +193,12 @@ export class Campaign {
         archer: ['expert-shortbow', 'expert-longbow'],
       };
       if (rank === 'normal' && this.floorNumber >= 1 && this.floorNumber <= 9 && roll < 0.30) {
-        const pool = Object.values(tierOneWeapons).flat();
+        const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierOneWeapons);
+        const pool = classes.flatMap((id) => tierOneWeapons[id] ?? []);
         this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
       } else if (rank === 'normal' && this.floorNumber >= 11 && this.floorNumber <= 19 && roll < 0.35) {
-        const pool = Object.values(tierTwoWeapons).flat();
+        const classes = this.activeParty.map((hero) => hero.definition.id).filter((id) => id in tierTwoWeapons);
+        const pool = classes.flatMap((id) => tierTwoWeapons[id] ?? []);
         this.inventory.add(pool[Math.floor(Math.random() * pool.length)]);
       }
 
@@ -222,8 +224,6 @@ export class Campaign {
         this.inventory.add('iron-shield');
         this.inventory.add('iron-helmet');
       } else if (this.floorNumber === 20 && rank === 'boss') {
-        this.inventory.add('winter-cloak');
-        this.inventory.add('seventh-fang');
         this.inventory.add('seventh-edge');
         this.inventory.add('wooden-buckler');
         this.inventory.add('traveler-pants');
