@@ -98,7 +98,7 @@ export const CAMPAIGN_FLOORS: readonly FloorConfig[] = [
     { col: 1, row: 2 }, { col: 4, row: 2 },
   ]),
   floor(14, 'Portões do Castelo Carmesim', [BLOOD_KNIGHT, VAMPIRIC_THRALL, NIGHT_HUNTER]),
-  floor(15, 'Salão da Condessa', [CRIMSON_COUNTESS, BLOOD_KNIGHT, BLOOD_BAT], [], 'mini-boss'),
+  floor(15, 'Salão de Inverno', [CRIMSON_COUNTESS, BLOOD_KNIGHT, BLOOD_BAT], [], 'mini-boss'),
   floor(16, 'Galeria dos Uivos', [WEREWOLF, WEREWOLF, VAMPIRIC_THRALL, BLOOD_BAT]),
   floor(17, 'Banquete Eterno', [BLOOD_KNIGHT, NIGHT_HUNTER, NIGHT_HUNTER], [
     { col: 2, row: 2 }, { col: 3, row: 2 },
@@ -107,5 +107,5 @@ export const CAMPAIGN_FLOORS: readonly FloorConfig[] = [
   floor(19, 'Trono Vazio', [BLOOD_KNIGHT, WEREWOLF, NIGHT_HUNTER, NIGHT_HUNTER], [
     { col: 1, row: 2 }, { col: 4, row: 2 },
   ]),
-  floor(20, 'Trono do Senhor da Noite', [DRACULA, BLOOD_KNIGHT, BLOOD_BAT], [], 'boss'),
+  floor(20, 'Trono do Sétimo', [DRACULA, BLOOD_KNIGHT, BLOOD_BAT], [], 'boss'),
 ];
