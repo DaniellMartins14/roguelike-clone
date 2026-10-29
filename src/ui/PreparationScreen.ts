@@ -1,6 +1,20 @@
 import type { Campaign } from '../game/core/Campaign';
 import type { EquipmentSlot, Position, Unit } from '../game/types';
 import { ITEM_DEFINITIONS } from '../game/data/items';
+import warriorSprite from '../assets/sprites/warrior.png';
+import assassinSprite from '../assets/sprites/assassin.png';
+import archerSprite from '../assets/sprites/archer.png';
+import mageSprite from '../assets/sprites/mage.png';
+import clericSprite from '../assets/sprites/cleric.png';
+
+const HERO_SPRITES: Record<string, string> = {
+  warrior: warriorSprite,
+  assassin: assassinSprite,
+  archer: archerSprite,
+  mage: mageSprite,
+  cleric: clericSprite,
+};
+
 
 const SLOTS: Array<{ id: EquipmentSlot; label: string }> = [
   { id: 'right-glove', label: 'Luva direita' }, { id: 'left-glove', label: 'Luva esquerda' },
@@ -119,11 +133,32 @@ export class PreparationScreen {
       });
       const cell = document.createElement('button');
       cell.type = 'button';
-      cell.textContent = occupant ? occupant.definition.name.slice(0, 2).toUpperCase() : (row >= 3 ? '·' : '');
-      cell.title = occupant ? occupant.definition.name : `Coluna ${col + 1}, linha ${row + 1}`;
-      cell.style.cssText = `aspect-ratio:1;border:1px solid ${occupant?.uid === this.selectedHero.uid ? '#facc15' : occupant ? '#8b5cf6' : '#394150'};border-radius:6px;background:${occupant ? occupant.definition.color ? '#' + occupant.definition.color.toString(16).padStart(6,'0') : '#293449' : row >= 3 ? '#263244' : '#101723'};color:white;font-weight:800;cursor:${row >= 3 ? 'pointer' : 'not-allowed'};font-size:clamp(.7rem,1.4vw,1rem);`;
-      cell.disabled = row < 3 || !this.selectedUids.has(this.selectedHero.uid);
+      cell.title = occupant ? `${occupant.definition.name} · clique para ver equipamentos e inventário` : `Coluna ${col + 1}, linha ${row + 1}`;
+      cell.style.cssText = `display:flex;align-items:center;justify-content:center;aspect-ratio:1;overflow:hidden;padding:2px;border:1px solid ${occupant?.uid === this.selectedHero.uid ? '#facc15' : occupant ? '#8b5cf6' : '#394150'};border-radius:6px;background:${occupant ? '#293449' : row >= 3 ? '#263244' : '#101723'};color:white;font-weight:800;cursor:${occupant || row >= 3 ? 'pointer' : 'not-allowed'};`;
+      if (occupant) {
+        const sprite = HERO_SPRITES[occupant.definition.id];
+        if (sprite) {
+          const image = document.createElement('img');
+          image.src = sprite;
+          image.alt = occupant.definition.name;
+          image.draggable = false;
+          image.style.cssText = 'display:block;width:100%;height:100%;max-width:64px;max-height:64px;object-fit:contain;pointer-events:none;image-rendering:pixelated;';
+          cell.append(image);
+        } else {
+          cell.textContent = occupant.definition.name.slice(0, 2).toUpperCase();
+        }
+      } else {
+        cell.textContent = row >= 3 ? '·' : '';
+      }
+      cell.disabled = row < 3 && !occupant;
       cell.addEventListener('click', () => {
+        // Clicar no sprite seleciona esse herói; o painel de equipamento/inventário acompanha a seleção.
+        if (occupant) {
+          this.selectedHero = occupant;
+          this.message = '';
+          this.render();
+          return;
+        }
         if (row < 3) return;
         const collision = [...this.selectedUids].map((uid) => this.positions.get(uid)).some((pos) => pos && pos.col === col && pos.row === row && !(pos.col === this.positions.get(this.selectedHero.uid)?.col && pos.row === this.positions.get(this.selectedHero.uid)?.row));
         if (collision) { this.message = 'Essa casa já está ocupada por outro herói.'; this.render(); return; }
