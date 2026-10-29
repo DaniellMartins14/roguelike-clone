@@ -42,7 +42,8 @@ function startExpedition(): void {
     parent: gameRoot,
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
-    backgroundColor: '#0b1220',
+    backgroundColor: 'rgba(0,0,0,0)',
+    transparent: true,
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
