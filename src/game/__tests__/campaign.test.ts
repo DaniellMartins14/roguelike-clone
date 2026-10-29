@@ -254,13 +254,16 @@ describe('Persistência dos itens da expedição', () => {
 
     expect(campaign.extract()).toBe(true);
     expect(campaign.inventory.instanceIds).toContain(extractedItem.instanceId);
+    const extractedGold = campaign.gold;
 
     const temporaryItem = campaign.inventory.add('axe');
+    campaign.gold += 123; // ouro obtido na nova incursão
     loseFloor(campaign);
 
     expect(campaign.status).toBe('defeated');
     expect(campaign.inventory.instanceIds).toContain(extractedItem.instanceId);
     expect(campaign.inventory.instanceIds).not.toContain(temporaryItem.instanceId);
+    expect(campaign.gold).toBe(extractedGold);
   });
 });
 
