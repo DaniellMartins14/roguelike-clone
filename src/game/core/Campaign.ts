@@ -69,7 +69,7 @@ export class Campaign {
     this.battle = new GameState(() => this.createEncounter(), (hero) => this.inventory.specialBonusesFor(hero));
     this.battle.subscribe(() => {
       this.collectMonsterRewards();
-      if (this.battle.outcome === 'defeat') this.loseExpeditionItems();
+      if (this.battle.outcome === 'defeat') this.loseExpeditionItems(true);
     });
   }
 
@@ -186,9 +186,21 @@ export class Campaign {
     return true;
   }
 
-  /** Descarta o saque e o ouro desta incursão, inclusive itens temporários que foram equipados. */
-  loseExpeditionItems(): void {
-    this.inventory.removeItemsExcept(this.retainedItemIds, this.partyUnits);
+  /**
+   * Descarta o saque e o ouro desta incursão. Ao morrer, equipamentos que estejam vestidos
+   * pelos heróis são preservados e passam a contar como permanentes; os demais drops somem.
+   */
+  loseExpeditionItems(preserveEquipped = false): void {
+    const keepIds = new Set(this.retainedItemIds);
+    if (preserveEquipped) {
+      for (const hero of this.partyUnits) {
+        for (const id of Object.values(hero.equipment ?? {})) {
+          if (id) keepIds.add(id);
+        }
+      }
+      this.retainedItemIds = new Set(keepIds);
+    }
+    this.inventory.removeItemsExcept(keepIds, this.partyUnits);
     this.gold = this.retainedGold;
   }
 
