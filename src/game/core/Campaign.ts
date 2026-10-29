@@ -202,6 +202,13 @@ export class Campaign {
     }
   }
 
+  /** Vende um item disponível no inventário e credita seu preço de venda. */
+  sellInventoryItem(instanceId: string): number {
+    const value = this.inventory.sell(instanceId);
+    if (value > 0) this.gold += value;
+    return value;
+  }
+
   /** Reinicia uma expedição no andar 1 sem apagar níveis, XP ou atributos permanentes. */
   restart(notify = true): void {
     this.floorIndex = 0;
