@@ -480,7 +480,7 @@ export class BattleScene extends Phaser.Scene {
         'night-hunter': 'monster-night-hunter',
         'blood-knight': 'monster-blood-knight',
         werewolf: 'monster-werewolf',
-        winter: 'monster-inverno',
+        inverno: 'monster-inverno',
         'the-seventh': 'monster-o-setimo',
       };
       const texture = monsterTextures[def.id];
