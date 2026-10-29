@@ -17,10 +17,10 @@ const HERO_SPRITES: Record<string, string> = {
 
 
 const SLOTS: Array<{ id: EquipmentSlot; label: string }> = [
-  { id: 'right-glove', label: 'Luva direita' }, { id: 'left-glove', label: 'Luva esquerda' },
-  { id: 'boots', label: 'Botas' }, { id: 'chest', label: 'Peitoral' },
-  { id: 'helmet', label: 'Capacete' }, { id: 'pants', label: 'Calça' },
+  { id: 'chest', label: 'Peitoral' }, { id: 'boots', label: 'Bota' },
+  { id: 'helmet', label: 'Capacete' }, { id: 'amulet', label: 'Amuleto' },
   { id: 'weapon', label: 'Arma' }, { id: 'off-hand', label: 'Mão secundária' },
+  { id: 'ring', label: 'Anel' },
 ];
 const STYLE = {
   card: 'padding:12px;border:1px solid #394150;border-radius:10px;background:#151d2b;color:#f3f4f6;',
