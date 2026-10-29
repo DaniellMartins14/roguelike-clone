@@ -124,6 +124,7 @@ export class BattleScene extends Phaser.Scene {
   private outcomeOverlay!: Phaser.GameObjects.Container;
   private outcomeTitle!: Phaser.GameObjects.Text;
   private outcomeSubtitle!: Phaser.GameObjects.Text;
+  private outcomeReward!: Phaser.GameObjects.Text;
   /** Aviso fixo abaixo do tabuleiro enquanto houver golpe de chefe anunciado. */
   private threatText!: Phaser.GameObjects.Text;
   private hoverCell: Position | null = null;
@@ -702,7 +703,7 @@ export class BattleScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.outcomeSubtitle = this.add
-      .text(0, 42, '', {
+      .text(0, 25, '', {
         fontFamily: 'system-ui, sans-serif',
         fontSize: '18px',
         color: '#cbd5e1',
@@ -712,8 +713,20 @@ export class BattleScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0);
 
+    this.outcomeReward = this.add
+      .text(0, 75, '', {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '16px',
+        fontStyle: 'bold',
+        color: '#fde68a',
+        align: 'center',
+        wordWrap: { width: BOARD_WIDTH - 40 },
+        resolution: 2,
+      })
+      .setOrigin(0.5, 0);
+
     this.outcomeOverlay = this.add
-      .container(GAME_WIDTH / 2, GAME_HEIGHT / 2, [background, this.outcomeTitle, this.outcomeSubtitle])
+      .container(GAME_WIDTH / 2, GAME_HEIGHT / 2, [background, this.outcomeTitle, this.outcomeSubtitle, this.outcomeReward])
       .setDepth(10)
       .setVisible(false);
   }
@@ -758,6 +771,7 @@ export class BattleScene extends Phaser.Scene {
     this.outcomeTitle.setColor(screen.color);
     this.outcomeTitle.setFontSize(screen.title.length > 10 ? 40 : 64);
     this.outcomeSubtitle.setText(screen.subtitle);
+    this.outcomeReward.setText(status === 'defeated' ? '' : this.campaign.victoryRewards.join('\n'));
     this.outcomeOverlay.setVisible(true);
   }
 
